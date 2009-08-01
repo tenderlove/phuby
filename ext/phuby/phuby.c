@@ -75,6 +75,17 @@ static VALUE get(VALUE self, VALUE key)
   return Qnil;
 }
 
+static VALUE set(VALUE self, VALUE key, VALUE value)
+{
+  zval *php_value;
+
+  MAKE_STD_ZVAL(php_value);
+  ZVAL_LONG(php_value, NUM2INT(value));
+  ZEND_SET_SYMBOL(EG(active_symbol_table), StringValuePtr(key), php_value);
+
+  return value;
+}
+
 void Init_phuby()
 {
   mPhuby = rb_define_module("Phuby");
@@ -85,6 +96,7 @@ void Init_phuby()
   rb_define_method(cPhubyRuntime, "start", start, 0);
   rb_define_method(cPhubyRuntime, "stop", stop, 0);
   rb_define_method(cPhubyRuntime, "[]", get, 1);
+  rb_define_method(cPhubyRuntime, "[]=", set, 2);
 
   rb_define_private_method(cPhubyRuntime, "native_eval", native_eval, 2);
 }
