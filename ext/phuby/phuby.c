@@ -25,6 +25,9 @@ static VALUE stop(VALUE self)
 
 static VALUE native_eval(VALUE self, VALUE string, VALUE filename)
 {
+
+  zval return_value;
+
   zend_first_try {
     zend_eval_string(
       StringValuePtr(string),
@@ -32,6 +35,30 @@ static VALUE native_eval(VALUE self, VALUE string, VALUE filename)
       StringValuePtr(filename)
     );
   } zend_end_try();
+
+  return Qnil;
+}
+
+static VALUE get(VALUE self, VALUE key)
+{
+  zval **value;
+
+  if(zend_hash_find(EG(active_symbol_table),
+        StringValuePtr(key),
+        RSTRING_LEN(key) + 1,
+        (void **)&value) == SUCCESS) {
+
+    switch(Z_TYPE_P(*value)) {
+      case IS_LONG:
+        return INT2NUM(Z_LVAL_P(*value));
+        break;
+      case IS_DOUBLE:
+        return rb_float_new(Z_DVAL_P(*value));
+        break;
+      default:
+        return Qnil;
+    }
+  }
 
   return Qnil;
 }
@@ -45,5 +72,7 @@ void Init_phuby()
 
   rb_define_method(cPhubyRuntime, "start", start, 0);
   rb_define_method(cPhubyRuntime, "stop", stop, 0);
+  rb_define_method(cPhubyRuntime, "[]", get, 1);
+
   rb_define_private_method(cPhubyRuntime, "native_eval", native_eval, 2);
 }
