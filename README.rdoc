@@ -12,7 +12,9 @@ Phuby wraps PHP in a loving embrace.  Exposes a PHP runtime in ruby
 
 == SYNOPSIS:
 
-  FIX (code sample of usage)
+  rt = Phuby::Runtime.new
+  rt.eval('$hello = "world"')
+  assert_equal "world", rt['hello']
 
 == REQUIREMENTS:
 

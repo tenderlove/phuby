@@ -37,4 +37,9 @@ class TestPhuby < Test::Unit::TestCase
     @rt.eval("$hi = false;")
     assert_equal false, @rt['hi']
   end
+
+  def test_hash_return_string
+    @rt.eval("$hi = 'world';")
+    assert_equal 'world', @rt['hi']
+  end
 end

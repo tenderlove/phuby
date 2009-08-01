@@ -49,6 +49,9 @@ static VALUE get(VALUE self, VALUE key)
         (void **)&value) == SUCCESS) {
 
     switch(Z_TYPE_P(*value)) {
+      case IS_NULL:
+        return Qnil;
+        break;
       case IS_BOOL:
         if(Z_BVAL_P(*value))
           return Qtrue;
@@ -60,6 +63,9 @@ static VALUE get(VALUE self, VALUE key)
         break;
       case IS_DOUBLE:
         return rb_float_new(Z_DVAL_P(*value));
+        break;
+      case IS_STRING:
+        return rb_str_new(Z_STRVAL_P(*value), Z_STRLEN_P(*value));
         break;
       default:
         return Qnil;
