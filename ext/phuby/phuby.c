@@ -90,6 +90,10 @@ static VALUE set(VALUE self, VALUE key, VALUE value)
     case T_TRUE:
       ZVAL_BOOL(php_value, value == Qtrue ? 1 : 0);
       break;
+
+    case T_STRING:
+      ZVAL_STRINGL(php_value, StringValuePtr(value), RSTRING_LEN(value), 1);
+      break;
   }
 
   ZEND_SET_SYMBOL(EG(active_symbol_table), StringValuePtr(key), php_value);

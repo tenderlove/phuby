@@ -54,4 +54,10 @@ class TestPhuby < Test::Unit::TestCase
     @rt.eval('$hi = !$hi;')
     assert_equal true, @rt['hi']
   end
+
+  def test_string
+    assert_equal "hello", @rt['hi'] = "hello"
+    @rt.eval('$hi = $hi . " world";')
+    assert_equal 'hello world', @rt['hi']
+  end
 end
