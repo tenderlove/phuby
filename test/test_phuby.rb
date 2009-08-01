@@ -48,4 +48,10 @@ class TestPhuby < Test::Unit::TestCase
     @rt.eval('$hi += 2;')
     assert_equal 12, @rt['hi']
   end
+
+  def test_set_bool
+    assert_equal false, @rt['hi'] = false
+    @rt.eval('$hi = !$hi;')
+    assert_equal true, @rt['hi']
+  end
 end

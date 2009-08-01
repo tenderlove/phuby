@@ -80,7 +80,18 @@ static VALUE set(VALUE self, VALUE key, VALUE value)
   zval *php_value;
 
   MAKE_STD_ZVAL(php_value);
-  ZVAL_LONG(php_value, NUM2INT(value));
+
+  switch(TYPE(value))
+  {
+    case T_FIXNUM:
+      ZVAL_LONG(php_value, NUM2INT(value));
+      break;
+
+    case T_TRUE:
+      ZVAL_BOOL(php_value, value == Qtrue ? 1 : 0);
+      break;
+  }
+
   ZEND_SET_SYMBOL(EG(active_symbol_table), StringValuePtr(key), php_value);
 
   return value;
