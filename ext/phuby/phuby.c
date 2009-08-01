@@ -16,6 +16,13 @@ static VALUE start(VALUE self)
   return Qnil;
 }
 
+static VALUE stop(VALUE self)
+{
+  php_embed_shutdown();
+
+  return Qnil;
+}
+
 static VALUE native_eval(VALUE self, VALUE string, VALUE filename)
 {
   zend_first_try {
@@ -37,5 +44,6 @@ void Init_phuby()
   cPhubyRuntime = rb_define_class_under(mPhuby, "Runtime", rb_cObject);
 
   rb_define_method(cPhubyRuntime, "start", start, 0);
+  rb_define_method(cPhubyRuntime, "stop", stop, 0);
   rb_define_private_method(cPhubyRuntime, "native_eval", native_eval, 2);
 }
