@@ -1,0 +1,7 @@
+History.txt
+Manifest.txt
+README.txt
+Rakefile
+bin/phuby
+lib/phuby.rb
+test/test_phuby.rb
