@@ -55,9 +55,15 @@ class TestPhuby < Test::Unit::TestCase
     assert_equal true, @rt['hi']
   end
 
-  def test_string
+  def test_set_string
     assert_equal "hello", @rt['hi'] = "hello"
     @rt.eval('$hi = $hi . " world";')
     assert_equal 'hello world', @rt['hi']
+  end
+
+  def test_set_float
+    assert_equal 3.14159, @rt['hi'] = 3.14159
+    @rt.eval('$hi += 1.0;')
+    assert_equal 4.14159, @rt['hi']
   end
 end

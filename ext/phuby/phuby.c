@@ -68,7 +68,7 @@ static VALUE get(VALUE self, VALUE key)
         return rb_str_new(Z_STRVAL_P(*value), Z_STRLEN_P(*value));
         break;
       default:
-        return Qnil;
+        rb_raise(rb_eRuntimeError, "Whoa, I don't know how to convert that");
     }
   }
 
@@ -89,6 +89,11 @@ static VALUE set(VALUE self, VALUE key, VALUE value)
 
     case T_TRUE:
       ZVAL_BOOL(php_value, value == Qtrue ? 1 : 0);
+      break;
+
+    case T_FLOAT:
+    case T_BIGNUM:
+      ZVAL_DOUBLE(php_value, NUM2DBL(value));
       break;
 
     case T_STRING:
