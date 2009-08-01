@@ -1,13 +1,14 @@
-require "test/unit"
-require "phuby"
+require 'helper'
 
-class TestPhuby < Test::Unit::TestCase
+class TestPhuby < Phuby::TestCase
   def setup
+    super
     @rt = Phuby::Runtime.new
     @rt.start
   end
 
   def teardown
+    super
     @rt.stop
   end
 
@@ -65,5 +66,12 @@ class TestPhuby < Test::Unit::TestCase
     assert_equal 3.14159, @rt['hi'] = 3.14159
     @rt.eval('$hi += 1.0;')
     assert_equal 4.14159, @rt['hi']
+  end
+
+  def test_file_handle
+    File.open(File.join(ASSETS_DIR, 'hello_world.php'), 'rb') { |fh|
+      @rt.eval fh
+    }
+    assert_equal 'world', @rt['hi']
   end
 end

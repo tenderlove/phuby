@@ -23,6 +23,53 @@ static VALUE stop(VALUE self)
   return Qnil;
 }
 
+/* IO reader callback for PHP IO streams */
+static size_t rb_io_reader(void *handle, char *buf, size_t len)
+{
+  VALUE io = (VALUE)handle;
+  VALUE string = rb_funcall(io, rb_intern("read"), 1, INT2NUM(len));
+
+  if(Qnil == string) return 0;
+
+  memcpy(buf, StringValuePtr(string), (unsigned int)RSTRING_LEN(string));
+
+  return RSTRING_LEN(string);
+}
+
+static size_t rb_io_sizer(void *handle)
+{
+}
+
+static void rb_io_closer(void *handle)
+{
+  // We'll let the caller close their own IO
+  return;
+}
+
+static VALUE native_eval_io(VALUE self, VALUE io, VALUE filename)
+{
+  zend_file_handle script;
+
+  script.type = ZEND_HANDLE_STREAM;
+  script.filename = StringValuePtr(filename);
+  script.opened_path = NULL;
+
+  memset(&script.handle.stream.mmap, 0, sizeof(zend_mmap));
+
+  script.handle.stream.handle = (void *)io;
+  script.handle.stream.isatty = 0;
+
+  script.handle.stream.reader = rb_io_reader;
+  script.handle.stream.fsizer = rb_io_sizer;
+  script.handle.stream.closer = rb_io_closer;
+
+  script.free_filename = 0;
+
+  php_execute_script(&script);
+
+  return Qnil;
+}
+
 static VALUE native_eval(VALUE self, VALUE string, VALUE filename)
 {
 
@@ -119,4 +166,5 @@ void Init_phuby()
   rb_define_method(cPhubyRuntime, "[]=", set, 2);
 
   rb_define_private_method(cPhubyRuntime, "native_eval", native_eval, 2);
+  rb_define_private_method(cPhubyRuntime, "native_eval_io", native_eval_io, 2);
 }
