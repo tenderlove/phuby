@@ -2,6 +2,8 @@
 
 require 'rubygems'
 require 'hoe'
+gem 'rake-compiler', '>= 0.4.1'
+require "rake/extensiontask"
 
 HOE = Hoe.spec 'phuby' do
   developer('Aaron Patterson', 'aaronp@rubyforge.org')
@@ -12,7 +14,7 @@ HOE = Hoe.spec 'phuby' do
   self.spec_extras = { :extensions => ["ext/phuby/extconf.rb"] }
 end
 
-RET = Rake::ExtensionTask.new("nokogiri", HOE.spec) do |ext|
+RET = Rake::ExtensionTask.new("phuby", HOE.spec) do |ext|
   ext.lib_dir = File.join('lib', 'phuby')
 end
 
