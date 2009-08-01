@@ -1,0 +1,145 @@
+diff --git a/configure b/configure
+index 365e20e..7d116ab 100755
+--- a/configure
++++ b/configure
+@@ -3480,7 +3480,7 @@ if test "$GCC" = "yes"; then
+     ;;
+   esac
+   if test $GCC_MAJOR_VERSION -ge 4; then
+-    CFLAGS="$CFLAGS -fvisibility=hidden"
++    CFLAGS="$CFLAGS"
+   fi
+ fi
+ 
+@@ -4406,12 +4406,12 @@ IFS="- /.
+     build_type=shared
+     ;;
+   *darwin*)
+-    MH_BUNDLE_FLAGS="-dynamic -twolevel_namespace -bundle -bundle_loader $APXS_HTTPD"
++    MH_BUNDLE_FLAGS="-dylib -twolevel_namespace -bundle -bundle_loader $APXS_HTTPD"
+     
+   PHP_VAR_SUBST="$PHP_VAR_SUBST MH_BUNDLE_FLAGS"
+ 
+-    SAPI_SHARED=libs/libphp5.so
+-    build_type=bundle
++    SAPI_SHARED=libs/libphp5.dylib
++    build_type=shared
+     ;;
+   *)
+     build_type=shared
+@@ -107680,7 +107680,7 @@ if test -z "$aix_libpath"; then aix_libpath="/usr/lib:/lib"; fi
+     if test "$GCC" = yes ; then
+     	output_verbose_link_cmd='echo'
+         archive_cmds='$CC -dynamiclib $allow_undefined_flag -o $lib $libobjs $deplibs $compiler_flags -install_name $rpath/$soname $verstring'
+-      module_cmds='$CC $allow_undefined_flag -o $lib -bundle $libobjs $deplibs$compiler_flags'
++      module_cmds='$CC $allow_undefined_flag -fPIC -o $lib -dynamiclib $libobjs $deplibs$compiler_flags'
+       # Don't fix this by using the ld -exported_symbols_list flag, it doesn't exist in older darwin lds
+       archive_expsym_cmds='sed -e "s,#.*,," -e "s,^[    ]*,," -e "s,^\(..*\),_&," < $export_symbols > $output_objdir/${libname}-symbols.expsym~$CC -dynamiclib $allow_undefined_flag -o $lib $libobjs $deplibs $compiler_flags -install_name $rpath/$soname $verstring~nmedit -s $output_objdir/${libname}-symbols.expsym ${lib}'
+       module_expsym_cmds='sed -e "s,#.*,," -e "s,^[    ]*,," -e "s,^\(..*\),_&," < $export_symbols > $output_objdir/${libname}-symbols.expsym~$CC $allow_undefined_flag  -o $lib -bundle $libobjs $deplibs$compiler_flags~nmedit -s $output_objdir/${libname}-symbols.expsym ${lib}'
+diff --git a/configure.in b/configure.in
+index dff131d..18c8e72 100644
+--- a/configure.in
++++ b/configure.in
+@@ -427,6 +427,7 @@ alloca.h \
+ arpa/inet.h \
+ arpa/nameser.h \
+ assert.h \
++crt_externs.h \
+ crypt.h \
+ fcntl.h \
+ grp.h \
+diff --git a/ext/spl/spl_dllist.h b/ext/spl/spl_dllist.h
+index 5b0998b..8360282 100644
+--- a/ext/spl/spl_dllist.h
++++ b/ext/spl/spl_dllist.h
+@@ -24,9 +24,9 @@
+ #include "php.h"
+ #include "php_spl.h"
+ 
+-PHPAPI zend_class_entry *spl_ce_SplDoublyLinkedList;
+-PHPAPI zend_class_entry *spl_ce_SplQueue;
+-PHPAPI zend_class_entry *spl_ce_SplStack;
++extern PHPAPI zend_class_entry *spl_ce_SplDoublyLinkedList;
++extern PHPAPI zend_class_entry *spl_ce_SplQueue;
++extern PHPAPI zend_class_entry *spl_ce_SplStack;
+ 
+ PHP_MINIT_FUNCTION(spl_dllist);
+ 
+diff --git a/ext/spl/spl_fixedarray.h b/ext/spl/spl_fixedarray.h
+index dd556be..f9a2d90 100644
+--- a/ext/spl/spl_fixedarray.h
++++ b/ext/spl/spl_fixedarray.h
+@@ -22,7 +22,7 @@
+ #ifndef SPL_FIXEDARRAY_H
+ #define SPL_FIXEDARRAY_H
+ 
+-PHPAPI zend_class_entry *spl_ce_SplFixedArray;
++extern PHPAPI zend_class_entry *spl_ce_SplFixedArray;
+ 
+ PHP_MINIT_FUNCTION(spl_fixedarray);
+ 
+diff --git a/ext/spl/spl_heap.h b/ext/spl/spl_heap.h
+index 56c82b5..1d29e57 100644
+--- a/ext/spl/spl_heap.h
++++ b/ext/spl/spl_heap.h
+@@ -24,11 +24,11 @@
+ #include "php.h"
+ #include "php_spl.h"
+ 
+-PHPAPI zend_class_entry *spl_ce_SplHeap;
+-PHPAPI zend_class_entry *spl_ce_SplMinHeap;
+-PHPAPI zend_class_entry *spl_ce_SplMaxHeap;
++extern PHPAPI zend_class_entry *spl_ce_SplHeap;
++extern PHPAPI zend_class_entry *spl_ce_SplMinHeap;
++extern PHPAPI zend_class_entry *spl_ce_SplMaxHeap;
+ 
+-PHPAPI zend_class_entry *spl_ce_SplPriorityQueue;
++extern PHPAPI zend_class_entry *spl_ce_SplPriorityQueue;
+ 
+ PHP_MINIT_FUNCTION(spl_heap);
+ 
+diff --git a/main/php.h b/main/php.h
+index 58f4142..035d502 100644
+--- a/main/php.h
++++ b/main/php.h
+@@ -263,7 +263,13 @@ END_EXTERN_C()
+ #if !defined(PHP_WIN32)
+ #define PHP_SLEEP_NON_VOID
+ #define php_sleep sleep
++
++#if HAVE_CRT_EXTERNS_H
++#include <crt_externs.h>
++#define environ (*_NSGetEnviron())
++#else
+ extern char **environ;
++#endif
+ #endif	/* !defined(PHP_WIN32) */
+ 
+ #ifdef PHP_PWRITE_64
+diff --git a/main/php_getopt.h b/main/php_getopt.h
+index 024ea5c..62f04d6 100644
+--- a/main/php_getopt.h
++++ b/main/php_getopt.h
+@@ -41,7 +41,7 @@ typedef struct _opt_struct {
+ 
+ BEGIN_EXTERN_C()
+ /* holds the index of the latest fetched element from the opts array */
+-PHPAPI int php_optidx;
++extern PHPAPI int php_optidx;
+ PHPAPI int php_getopt(int argc, char* const *argv, const opt_struct opts[], char **optarg, int *optind, int show_err, int arg_start);
+ END_EXTERN_C()
+ 
+diff --git a/sapi/cli/config.m4 b/sapi/cli/config.m4
+index e804357..300b898 100644
+--- a/sapi/cli/config.m4
++++ b/sapi/cli/config.m4
+@@ -20,9 +20,6 @@ if test "$PHP_CLI" != "no"; then
+       BUILD_CLI="echo '\#! .' > php.sym && echo >>php.sym && nm -BCpg \`echo \$(PHP_GLOBAL_OBJS) \$(PHP_CLI_OBJS) | sed 's/\([A-Za-z0-9_]*\)\.lo/\1.o/g'\` | \$(AWK) '{ if (((\$\$2 == \"T\") || (\$\$2 == \"D\") || (\$\$2 == \"B\")) && (substr(\$\$3,1,1) != \".\")) { print \$\$3 } }' | sort -u >> php.sym && \$(LIBTOOL) --mode=link \$(CC) -export-dynamic \$(CFLAGS_CLEAN) \$(EXTRA_CFLAGS) \$(EXTRA_LDFLAGS_PROGRAM) \$(LDFLAGS) -Wl,-brtl -Wl,-bE:php.sym \$(PHP_RPATHS) \$(PHP_GLOBAL_OBJS) \$(PHP_CLI_OBJS) \$(EXTRA_LIBS) \$(ZEND_EXTRA_LIBS) -o \$(SAPI_CLI_PATH)"
+     fi
+     ;;
+-  *darwin*)
+-    BUILD_CLI="\$(CC) \$(CFLAGS_CLEAN) \$(EXTRA_CFLAGS) \$(EXTRA_LDFLAGS_PROGRAM) \$(LDFLAGS) \$(NATIVE_RPATHS) \$(PHP_GLOBAL_OBJS:.lo=.o) \$(PHP_CLI_OBJS:.lo=.o) \$(PHP_FRAMEWORKS) \$(EXTRA_LIBS) \$(ZEND_EXTRA_LIBS) -o \$(SAPI_CLI_PATH)"
+-    ;;
+   *netware*)
+     BUILD_CLI="\$(LIBTOOL) --mode=link \$(CC) -export-dynamic \$(CFLAGS_CLEAN) \$(EXTRA_CFLAGS) \$(EXTRA_LDFLAGS_PROGRAM) \$(LDFLAGS) \$(PHP_RPATHS) \$(PHP_CLI_OBJS) \$(EXTRA_LIBS) \$(ZEND_EXTRA_LIBS) -Lnetware -lphp5lib -o \$(SAPI_CLI_PATH)"
+     ;;
