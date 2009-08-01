@@ -49,6 +49,12 @@ static VALUE get(VALUE self, VALUE key)
         (void **)&value) == SUCCESS) {
 
     switch(Z_TYPE_P(*value)) {
+      case IS_BOOL:
+        if(Z_BVAL_P(*value))
+          return Qtrue;
+        else
+          return Qfalse;
+        break;
       case IS_LONG:
         return INT2NUM(Z_LVAL_P(*value));
         break;
