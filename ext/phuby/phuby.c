@@ -4,13 +4,24 @@
 VALUE mPhuby;
 VALUE cPhubyRuntime;
 
+static int phuby_ub_write(const char *str, unsigned int strlen)
+{
+  VALUE self = rb_funcall(cPhubyRuntime, rb_intern("instance"), 0);
+  VALUE handler = rb_iv_get(self, "@events");
+
+  rb_funcall(handler, rb_intern("write"), 1, rb_str_new(str, strlen));
+  return strlen;
+}
+
 static VALUE start(VALUE self)
 {
   /* FIXME:
    * I got these from the book.  I don't know wtf they're for yet. */
   int argc = 1;
   char *argv[2] = { "embed4", NULL };
+  /* end FIXME */
 
+  php_embed_module.ub_write = phuby_ub_write;
   php_embed_init(argc, argv);
 
   return Qnil;

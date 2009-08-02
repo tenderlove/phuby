@@ -3,7 +3,7 @@ require 'helper'
 class TestPhuby < Phuby::TestCase
   def setup
     super
-    @rt = Phuby::Runtime.new
+    @rt = Phuby::Runtime.instance
     @rt.start
   end
 
@@ -73,5 +73,22 @@ class TestPhuby < Phuby::TestCase
       @rt.eval fh
     }
     assert_equal 'world', @rt['hi']
+  end
+
+  def test_capture_output
+    quiet = Class.new(Phuby::Events) {
+      attr_accessor :written
+
+      def write string
+        @written ||= []
+        @written << string
+      end
+    }.new
+
+    @rt.with_events(quiet) do |rt|
+      rt.eval 'echo "hello world";'
+    end
+
+    assert_equal ['hello world'], quiet.written
   end
 end

@@ -1,4 +1,5 @@
 require 'phuby/phuby'
+require 'phuby/events'
 require 'phuby/runtime'
 
 module Phuby
