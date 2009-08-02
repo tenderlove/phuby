@@ -16,7 +16,6 @@ module Phuby
     end
 
     def eval string_or_io, filename = "nil"
-
       if string_or_io.respond_to? :read
         native_eval_io string_or_io, filename
       else

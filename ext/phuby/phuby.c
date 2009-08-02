@@ -13,6 +13,43 @@ static int phuby_ub_write(const char *str, unsigned int strlen)
   return strlen;
 }
 
+static int phuby_header_handler(
+    sapi_header_struct *sapi_header,
+    sapi_header_op_enum op,
+    sapi_headers_struct *sapi_headers)
+{
+  VALUE header = sapi_header->header ?
+    rb_str_new2(sapi_header->header) :
+    Qnil;
+
+  VALUE rb_op = Qnil;
+
+  int return_value = 0;
+
+  switch(op) {
+    case SAPI_HEADER_DELETE_ALL:
+      rb_op = ID2SYM(rb_intern("delete_all"));
+      break;
+    case SAPI_HEADER_DELETE:
+      rb_op = ID2SYM(rb_intern("delete"));
+      break;
+    case SAPI_HEADER_ADD:
+    case SAPI_HEADER_REPLACE:
+      rb_op = ID2SYM(rb_intern("store"));
+      return_value = SAPI_HEADER_ADD;
+      break;
+    default:
+      rb_raise(rb_eRuntimeError, "header_handler huh?");
+  }
+
+  VALUE self = rb_funcall(cPhubyRuntime, rb_intern("instance"), 0);
+  VALUE handler = rb_iv_get(self, "@events");
+
+  rb_funcall(handler, rb_intern("header"), 2, header, rb_op);
+
+  return return_value;
+}
+
 static VALUE start(VALUE self)
 {
   /* FIXME:
@@ -21,7 +58,8 @@ static VALUE start(VALUE self)
   char *argv[2] = { "embed4", NULL };
   /* end FIXME */
 
-  php_embed_module.ub_write = phuby_ub_write;
+  php_embed_module.ub_write       = phuby_ub_write;
+  php_embed_module.header_handler = phuby_header_handler;
   php_embed_init(argc, argv);
 
   return Qnil;
