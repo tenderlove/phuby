@@ -16,4 +16,6 @@ lib/phuby/runtime.rb
 php.patch
 test/assets/hello_world.php
 test/helper.rb
+test/test_handlers.rb
+test/test_header_sent.rb
 test/test_phuby.rb

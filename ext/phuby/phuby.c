@@ -50,6 +50,25 @@ static int phuby_header_handler(
   return return_value;
 }
 
+static int phuby_send_headers(sapi_headers_struct *sapi_headers)
+{
+  VALUE self = rb_funcall(cPhubyRuntime, rb_intern("instance"), 0);
+  VALUE handler = rb_iv_get(self, "@events");
+
+  int rc = sapi_headers->http_response_code == 0 ?
+    200 :
+    sapi_headers->http_response_code;
+
+  rb_funcall(handler, rb_intern("send_headers"), 1, INT2NUM(rc));
+
+  return SAPI_HEADER_SENT_SUCCESSFULLY;
+}
+
+static int phuby_flush(void *server_context)
+{
+  sapi_send_headers();
+}
+
 static VALUE start(VALUE self)
 {
   /* FIXME:
@@ -60,7 +79,13 @@ static VALUE start(VALUE self)
 
   php_embed_module.ub_write       = phuby_ub_write;
   php_embed_module.header_handler = phuby_header_handler;
+  php_embed_module.send_headers   = phuby_send_headers;
+
   php_embed_init(argc, argv);
+
+  SG(headers_sent) = 0;
+  SG(request_info).no_headers = 0;
+
 
   return Qnil;
 }

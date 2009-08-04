@@ -4,6 +4,8 @@ module Phuby
   class Runtime
     include Singleton
 
+    attr_accessor :events
+
     def initialize
       @events = Events.new
     end
