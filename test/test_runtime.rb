@@ -1,6 +1,16 @@
 require 'helper'
 
 class TestRuntime < Phuby::TestCase
+  def test___FILE___is_set
+    hw = File.expand_path(File.join(ASSETS_DIR, 'hello_world.php'))
+    Phuby::Runtime.php do |rt|
+      File.open(hw) do |rb|
+        rt.eval(rb)
+        assert_equal hw, rt['my_file']
+      end
+    end
+  end
+
   def test_start_stop
     rt = Phuby::Runtime.instance
     rt.start

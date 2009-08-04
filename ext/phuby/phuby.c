@@ -64,7 +64,7 @@ static int phuby_send_headers(sapi_headers_struct *sapi_headers)
   return SAPI_HEADER_SENT_SUCCESSFULLY;
 }
 
-static int phuby_flush(void *server_context)
+static void phuby_flush(void *server_context)
 {
   sapi_send_headers();
 }
@@ -83,6 +83,7 @@ static VALUE start(VALUE self)
   php_embed_module.ub_write       = phuby_ub_write;
   php_embed_module.header_handler = phuby_header_handler;
   php_embed_module.send_headers   = phuby_send_headers;
+  php_embed_module.flush          = phuby_flush;
 
   php_embed_init(argc, argv);
 
