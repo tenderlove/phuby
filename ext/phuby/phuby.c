@@ -241,9 +241,9 @@ void Init_phuby()
 
   rb_define_method(cPhubyRuntime, "start", start, 0);
   rb_define_method(cPhubyRuntime, "stop", stop, 0);
-  rb_define_method(cPhubyRuntime, "[]", get, 1);
-  rb_define_method(cPhubyRuntime, "[]=", set, 2);
 
+  rb_define_private_method(cPhubyRuntime, "get", get, 1);
+  rb_define_private_method(cPhubyRuntime, "set", set, 2);
   rb_define_private_method(cPhubyRuntime, "native_eval", native_eval, 2);
   rb_define_private_method(cPhubyRuntime, "native_eval_io", native_eval_io, 2);
 }
