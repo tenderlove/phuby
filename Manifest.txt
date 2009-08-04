@@ -19,3 +19,4 @@ test/helper.rb
 test/test_handlers.rb
 test/test_header_sent.rb
 test/test_phuby.rb
+test/test_runtime.rb

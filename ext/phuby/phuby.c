@@ -71,6 +71,9 @@ static int phuby_flush(void *server_context)
 
 static VALUE start(VALUE self)
 {
+  VALUE mutex = rb_iv_get(self, "@mutex");
+  rb_funcall(mutex, rb_intern("lock"), 0);
+
   /* FIXME:
    * I got these from the book.  I don't know wtf they're for yet. */
   int argc = 1;
@@ -86,13 +89,15 @@ static VALUE start(VALUE self)
   SG(headers_sent) = 0;
   SG(request_info).no_headers = 0;
 
-
   return Qnil;
 }
 
 static VALUE stop(VALUE self)
 {
   php_embed_shutdown();
+
+  VALUE mutex = rb_iv_get(self, "@mutex");
+  rb_funcall(mutex, rb_intern("unlock"), 0);
 
   return Qnil;
 }

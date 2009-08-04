@@ -1,4 +1,5 @@
 require 'singleton'
+require 'thread'
 
 module Phuby
   class Runtime
@@ -8,6 +9,7 @@ module Phuby
 
     def initialize
       @events = Events.new
+      @mutex  = Mutex.new
     end
 
     def with_events event
