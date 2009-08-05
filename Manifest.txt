@@ -9,6 +9,10 @@ ext/phuby/extconf.rb
 ext/phuby/mkmf.log
 ext/phuby/phuby.c
 ext/phuby/phuby.h
+ext/phuby/phuby_array.c
+ext/phuby/phuby_array.h
+ext/phuby/phuby_runtime.c
+ext/phuby/phuby_runtime.h
 lib/phuby.rb
 lib/phuby/events.rb
 lib/phuby/phuby.bundle
@@ -16,6 +20,7 @@ lib/phuby/runtime.rb
 php.patch
 test/assets/hello_world.php
 test/helper.rb
+test/test_array.rb
 test/test_handlers.rb
 test/test_header_sent.rb
 test/test_phuby.rb
