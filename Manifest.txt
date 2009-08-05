@@ -14,6 +14,7 @@ ext/phuby/phuby_array.h
 ext/phuby/phuby_runtime.c
 ext/phuby/phuby_runtime.h
 lib/phuby.rb
+lib/phuby/array.rb
 lib/phuby/events.rb
 lib/phuby/phuby.bundle
 lib/phuby/runtime.rb

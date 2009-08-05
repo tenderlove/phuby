@@ -16,6 +16,10 @@ module Phuby
       @mutex        = Mutex.new
     end
 
+    def started?
+      @mutex.locked?
+    end
+
     def with_events event
       old = @events
       @events = event
@@ -36,6 +40,7 @@ module Phuby
     def php &block
       start
       block.call(self)
+    ensure
       stop
     end
 

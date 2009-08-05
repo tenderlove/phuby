@@ -19,6 +19,22 @@ class TestRuntime < Phuby::TestCase
     rt.stop
   end
 
+  def test_started
+    rt = Phuby::Runtime.instance
+    rt.start
+    assert rt.started?
+    rt.stop
+    assert !rt.started?
+  end
+
+  def test_block_is_ensured
+    Phuby::Runtime.php do |rt|
+      raise
+    end
+  rescue
+    assert !Phuby::Runtime.instance.started?
+  end
+
   def test_mutex_lock
     rt = Phuby::Runtime.instance
     rt.start

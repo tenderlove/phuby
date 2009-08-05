@@ -164,6 +164,35 @@ static VALUE native_eval(VALUE self, VALUE string, VALUE filename)
   return Qnil;
 }
 
+VALUE Phuby_Wrap(zval * value)
+{
+  switch(Z_TYPE_P(value)) {
+    case IS_NULL:
+      return Qnil;
+      break;
+    case IS_BOOL:
+      if(Z_BVAL_P(value))
+        return Qtrue;
+      else
+        return Qfalse;
+      break;
+    case IS_LONG:
+      return INT2NUM(Z_LVAL_P(value));
+      break;
+    case IS_DOUBLE:
+      return rb_float_new(Z_DVAL_P(value));
+      break;
+    case IS_STRING:
+      return rb_str_new(Z_STRVAL_P(value), Z_STRLEN_P(value));
+      break;
+    case IS_ARRAY:
+      return Data_Wrap_PhubyArray(value);
+      break;
+    default:
+      rb_raise(rb_eRuntimeError, "Whoa, I don't know how to convert that");
+  }
+}
+
 static VALUE get(VALUE self, VALUE key)
 {
   zval **value;
@@ -172,32 +201,7 @@ static VALUE get(VALUE self, VALUE key)
         StringValuePtr(key),
         RSTRING_LEN(key) + 1,
         (void **)&value) == SUCCESS) {
-
-    switch(Z_TYPE_P(*value)) {
-      case IS_NULL:
-        return Qnil;
-        break;
-      case IS_BOOL:
-        if(Z_BVAL_P(*value))
-          return Qtrue;
-        else
-          return Qfalse;
-        break;
-      case IS_LONG:
-        return INT2NUM(Z_LVAL_P(*value));
-        break;
-      case IS_DOUBLE:
-        return rb_float_new(Z_DVAL_P(*value));
-        break;
-      case IS_STRING:
-        return rb_str_new(Z_STRVAL_P(*value), Z_STRLEN_P(*value));
-        break;
-      case IS_ARRAY:
-        return Data_Wrap_PhubyArray(*value);
-        break;
-      default:
-        rb_raise(rb_eRuntimeError, "Whoa, I don't know how to convert that");
-    }
+    return Phuby_Wrap(*value);
   }
 
   return Qnil;
