@@ -1,7 +1,6 @@
 #Process.setrlimit(Process::RLIMIT_CORE, Process::RLIM_INFINITY) unless RUBY_PLATFORM =~ /(java|mswin|mingw)/i
 
 require 'test/unit'
-require 'nokogiri'
 require 'phuby'
 
 module Phuby

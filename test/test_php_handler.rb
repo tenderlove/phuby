@@ -24,12 +24,15 @@ class TestPHPHandler < Phuby::TestCase
   end
 
   def test_get
-    req = FakeRequest.new('/index.php?a=b&c=d')
+    req = FakeRequest.new('/index.php?a=b&c=phuby')
     res = FakeResponse.new('')
 
     handler = Phuby::PHPHandler.new @server
     handler.do_GET req, res
 
     assert_match 'Get Params', res.body
+    %w{ a b c phuby }.each do |thing|
+      assert_match "<td>#{thing}</td>", res.body
+    end
   end
 end
