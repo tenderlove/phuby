@@ -24,15 +24,29 @@ static VALUE get(VALUE self, VALUE key)
   Data_Get_Struct(self, zval, array);
 
   if(SUCCESS == zend_hash_find(
-      array->value.ht,
+      Z_ARRVAL_P(array),
       StringValuePtr(key),
       RSTRING_LEN(key) + 1, // Add one for the NULL byte
       (void **)&value
   )) {
-    return Phuby_Wrap(*value);
+    return ZVAL2VALUE(*value);
   }
 
   return Qnil;
+}
+
+static VALUE set(VALUE self, VALUE key, VALUE value)
+{
+  zval * array;
+
+  Data_Get_Struct(self, zval, array);
+
+  add_assoc_zval(array,
+      StringValuePtr(key),
+      VALUE2ZVAL(value)
+  );
+
+  return self;
 }
 
 static VALUE key_eh(VALUE self, VALUE key)
@@ -56,5 +70,6 @@ void init_phuby_array()
 
   rb_define_method(cPhubyArray, "length", length, 0);
   rb_define_method(cPhubyArray, "get", get, 1);
+  rb_define_method(cPhubyArray, "set", set, 2);
   rb_define_method(cPhubyArray, "key?", key_eh, 1);
 }

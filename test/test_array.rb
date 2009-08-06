@@ -22,6 +22,16 @@ class TestArray < Phuby::TestCase
     end
   end
 
+  def test_set
+    Phuby::Runtime.php do |rt|
+      rt['_GET']['foo'] = "bar"
+      rt.eval('$foo = $_GET["foo"];')
+      #rt.eval('var_dump($_GET);')
+
+      assert_equal 'bar', rt['foo']
+    end
+  end
+
   def test_get_non_existent
     Phuby::Runtime.php do |rt|
       assert_nil rt['_GET']['foo']

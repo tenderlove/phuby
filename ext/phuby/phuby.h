@@ -5,6 +5,7 @@
 #include <ruby.h>
 #include <sapi/embed/php_embed.h>
 
+#include <phuby_conversions.h>
 #include <phuby_runtime.h>
 #include <phuby_array.h>
 

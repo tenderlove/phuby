@@ -6,6 +6,5 @@
 extern VALUE cPhubyRuntime;
 
 void init_phuby_runtime();
-VALUE Phuby_Wrap(zval * value);
 
 #endif
