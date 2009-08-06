@@ -10,7 +10,8 @@ module Phuby
       end
 
       def header value, op
-        @res.[]=(*value.split(':', 2))
+        k, v = *value.split(':', 2)
+        @res[k] = v.strip
       end
 
       def write string
