@@ -18,22 +18,41 @@ module Phuby
         @res.body ||= ''
         @res.body << string
       end
+
+      def send_headers response_code
+      end
     end
 
     def initialize server, root = server.config[:DocumentRoot] || Dir.pwd, *args
       super
     end
 
+    def do_POST req, res
+      return super(req, res) unless req.path =~ /\.php$/
+
+      process :POST, req, res
+    end
+
     def do_GET req, res
       return super(req, res) unless req.path =~ /\.php$/
 
+      process :GET, req, res
+    end
+
+    private
+    def process verb, req, res
       file = File.join(@root, req.path)
 
       Dir.chdir(@root) do
         Phuby::Runtime.php do |rt|
+          req.request_uri.query.split('&').each do |pair|
+            k, v = pair.split '='
+            rt["_GET"][k] = v
+          end if req.request_uri.query
+
           req.query.each do |k,v|
-            rt['_GET'][k] = v
-          end
+            rt["_#{verb}"][k] = v
+          end if :POST == verb
 
           events = Events.new req, res
 
