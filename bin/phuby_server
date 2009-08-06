@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'phuby'
+require 'webrick'
+
+s = WEBrick::HTTPServer.new(
+  :Port         => 10101,
+  :DocumentRoot => ARGV[0]
+)
+
+s.mount('/', Phuby::PHPHandler)
+
+trap('INT') { s.shutdown }
+s.start

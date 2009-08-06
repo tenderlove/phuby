@@ -1,11 +1,13 @@
-Process.setrlimit(Process::RLIMIT_CORE, Process::RLIM_INFINITY) unless RUBY_PLATFORM =~ /(java|mswin|mingw)/i
+#Process.setrlimit(Process::RLIMIT_CORE, Process::RLIM_INFINITY) unless RUBY_PLATFORM =~ /(java|mswin|mingw)/i
 
 require 'test/unit'
+require 'nokogiri'
 require 'phuby'
 
 module Phuby
   class TestCase < Test::Unit::TestCase
     ASSETS_DIR      = File.join(File.dirname(__FILE__), 'assets')
+    HTDOCS_DIR      = File.join(File.dirname(__FILE__), 'assets', 'htdocs')
 
     unless RUBY_VERSION >= '1.9'
       undef :default_test
