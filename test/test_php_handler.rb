@@ -14,7 +14,14 @@ class TestPHPHandler < Phuby::TestCase
     end
   end
 
-  class FakeResponse < Struct.new(:body)
+  class FakeResponse < Struct.new(:body, :headers)
+    def [] k
+      headers[k]
+    end
+
+    def []= k,v
+      headers[k] = v
+    end
   end
 
   def setup
@@ -25,7 +32,7 @@ class TestPHPHandler < Phuby::TestCase
 
   def test_get
     req = FakeRequest.new('/index.php?a=b&c=phuby')
-    res = FakeResponse.new('')
+    res = FakeResponse.new('', {})
 
     handler = Phuby::PHPHandler.new @server
     handler.do_GET req, res
@@ -34,5 +41,14 @@ class TestPHPHandler < Phuby::TestCase
     %w{ a b c phuby }.each do |thing|
       assert_match "<td>#{thing}</td>", res.body
     end
+  end
+
+  def test_headers_happen
+    req = FakeRequest.new('/index.php?a=b&c=phuby')
+    res = FakeResponse.new('', {})
+
+    handler = Phuby::PHPHandler.new @server
+    handler.do_GET req, res
+    assert_not_nil res['Content-type']
   end
 end

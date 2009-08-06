@@ -9,6 +9,10 @@ module Phuby
         @res = res
       end
 
+      def header value, op
+        @res.[]=(*value.split(':', 2))
+      end
+
       def write string
         @res.body ||= ''
         @res.body << string
