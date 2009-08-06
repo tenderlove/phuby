@@ -74,4 +74,11 @@ class TestPhuby < Phuby::TestCase
     }
     assert_equal 'world', @rt['hi']
   end
+
+  #def test_mysql
+  #  @rt['dbhost'] = 'localhost'
+  #  @rt['dbuser'] = 'root'
+  #  @rt['dbpassword'] = nil
+  #  @rt.eval('@mysql_connect($dbhost, $dbuser, $dbpassword, true);')
+  #end
 end

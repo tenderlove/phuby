@@ -27,11 +27,36 @@ Phuby wraps PHP in a loving embrace.  Exposes a PHP runtime in ruby
 == BUILD INSTRUCTIONS:
 
 * Download php-5.3.0
-* If you're on OS X, apply php.patch to the downloaded php
-* ./configure --enable-debug --enable-embed --disable-cli --prefix=/usr/local
-* make && sudo make install
 
-* then, back in phuby land: rake test
+The following instructions apply to OS X (probably not needed on linux):
+
+=== Install MySQL with macports
+
+  $ sudo port install mysql5 mysql5-server
+
+Set some symbolic links:
+
+  $ sudo ln -s /opt/local/include/mysql5/mysql /opt/local/include/mysql
+  $ sudo ln -s /opt/local/lib/mysql5/mysql/libmysqlclient.15.dylib \
+      /opt/local/lib/libmysqlclient.dylib
+
+=== Patch and configure php
+
+If you're on OS X, apply php.patch to the downloaded php.  Then configure
+php with the proper flags.  These paths are for OS X, but you should be able
+to adjust them for linux:
+
+  $ ./configure --enable-debug \
+      --enable-embed \
+      --disable-cli  \
+      --with-mysql=/opt/local \
+      --with-mysqli=/opt/local/lib/mysql5/bin/mysql_config \
+      --with-mysql-sock=/opt/local/var/run/mysql5/mysqld.sock \
+      --prefix=/usr/local
+
+  $ make && sudo make install
+
+Then, either install the gem, or rake test
 
 == INSTALL:
 

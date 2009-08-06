@@ -20,6 +20,8 @@ module Phuby
       end
 
       def send_headers response_code
+        #print "#" * 50
+        #puts response_code
       end
     end
 
@@ -45,6 +47,8 @@ module Phuby
 
       Dir.chdir(@root) do
         Phuby::Runtime.php do |rt|
+          rt.eval("date_default_timezone_set('America/Los_Angeles');")
+
           req.request_uri.query.split('&').each do |pair|
             k, v = pair.split '='
             rt["_GET"][k] = v
