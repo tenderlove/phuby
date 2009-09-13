@@ -1,7 +1,7 @@
-diff --git a/configure b/configure
+diff --git configure configure
 index 365e20e..7d116ab 100755
---- a/configure
-+++ b/configure
+--- configure
++++ configure
 @@ -3480,7 +3480,7 @@ if test "$GCC" = "yes"; then
      ;;
    esac
@@ -36,10 +36,10 @@ index 365e20e..7d116ab 100755
        # Don't fix this by using the ld -exported_symbols_list flag, it doesn't exist in older darwin lds
        archive_expsym_cmds='sed -e "s,#.*,," -e "s,^[    ]*,," -e "s,^\(..*\),_&," < $export_symbols > $output_objdir/${libname}-symbols.expsym~$CC -dynamiclib $allow_undefined_flag -o $lib $libobjs $deplibs $compiler_flags -install_name $rpath/$soname $verstring~nmedit -s $output_objdir/${libname}-symbols.expsym ${lib}'
        module_expsym_cmds='sed -e "s,#.*,," -e "s,^[    ]*,," -e "s,^\(..*\),_&," < $export_symbols > $output_objdir/${libname}-symbols.expsym~$CC $allow_undefined_flag  -o $lib -bundle $libobjs $deplibs$compiler_flags~nmedit -s $output_objdir/${libname}-symbols.expsym ${lib}'
-diff --git a/configure.in b/configure.in
+diff --git configure.in configure.in
 index dff131d..18c8e72 100644
---- a/configure.in
-+++ b/configure.in
+--- configure.in
++++ configure.in
 @@ -427,6 +427,7 @@ alloca.h \
  arpa/inet.h \
  arpa/nameser.h \
@@ -48,10 +48,10 @@ index dff131d..18c8e72 100644
  crypt.h \
  fcntl.h \
  grp.h \
-diff --git a/ext/spl/spl_dllist.h b/ext/spl/spl_dllist.h
+diff --git ext/spl/spl_dllist.h ext/spl/spl_dllist.h
 index 5b0998b..8360282 100644
---- a/ext/spl/spl_dllist.h
-+++ b/ext/spl/spl_dllist.h
+--- ext/spl/spl_dllist.h
++++ ext/spl/spl_dllist.h
 @@ -24,9 +24,9 @@
  #include "php.h"
  #include "php_spl.h"
@@ -65,10 +65,10 @@ index 5b0998b..8360282 100644
  
  PHP_MINIT_FUNCTION(spl_dllist);
  
-diff --git a/ext/spl/spl_fixedarray.h b/ext/spl/spl_fixedarray.h
+diff --git ext/spl/spl_fixedarray.h ext/spl/spl_fixedarray.h
 index dd556be..f9a2d90 100644
---- a/ext/spl/spl_fixedarray.h
-+++ b/ext/spl/spl_fixedarray.h
+--- ext/spl/spl_fixedarray.h
++++ ext/spl/spl_fixedarray.h
 @@ -22,7 +22,7 @@
  #ifndef SPL_FIXEDARRAY_H
  #define SPL_FIXEDARRAY_H
@@ -78,10 +78,10 @@ index dd556be..f9a2d90 100644
  
  PHP_MINIT_FUNCTION(spl_fixedarray);
  
-diff --git a/ext/spl/spl_heap.h b/ext/spl/spl_heap.h
+diff --git ext/spl/spl_heap.h ext/spl/spl_heap.h
 index 56c82b5..1d29e57 100644
---- a/ext/spl/spl_heap.h
-+++ b/ext/spl/spl_heap.h
+--- ext/spl/spl_heap.h
++++ ext/spl/spl_heap.h
 @@ -24,11 +24,11 @@
  #include "php.h"
  #include "php_spl.h"
@@ -98,10 +98,10 @@ index 56c82b5..1d29e57 100644
  
  PHP_MINIT_FUNCTION(spl_heap);
  
-diff --git a/main/php.h b/main/php.h
+diff --git main/php.h main/php.h
 index 58f4142..035d502 100644
---- a/main/php.h
-+++ b/main/php.h
+--- main/php.h
++++ main/php.h
 @@ -263,7 +263,13 @@ END_EXTERN_C()
  #if !defined(PHP_WIN32)
  #define PHP_SLEEP_NON_VOID
@@ -116,10 +116,10 @@ index 58f4142..035d502 100644
  #endif	/* !defined(PHP_WIN32) */
  
  #ifdef PHP_PWRITE_64
-diff --git a/main/php_getopt.h b/main/php_getopt.h
+diff --git main/php_getopt.h main/php_getopt.h
 index 024ea5c..62f04d6 100644
---- a/main/php_getopt.h
-+++ b/main/php_getopt.h
+--- main/php_getopt.h
++++ main/php_getopt.h
 @@ -41,7 +41,7 @@ typedef struct _opt_struct {
  
  BEGIN_EXTERN_C()
@@ -129,10 +129,10 @@ index 024ea5c..62f04d6 100644
  PHPAPI int php_getopt(int argc, char* const *argv, const opt_struct opts[], char **optarg, int *optind, int show_err, int arg_start);
  END_EXTERN_C()
  
-diff --git a/sapi/cli/config.m4 b/sapi/cli/config.m4
+diff --git sapi/cli/config.m4 sapi/cli/config.m4
 index e804357..300b898 100644
---- a/sapi/cli/config.m4
-+++ b/sapi/cli/config.m4
+--- sapi/cli/config.m4
++++ sapi/cli/config.m4
 @@ -20,9 +20,6 @@ if test "$PHP_CLI" != "no"; then
        BUILD_CLI="echo '\#! .' > php.sym && echo >>php.sym && nm -BCpg \`echo \$(PHP_GLOBAL_OBJS) \$(PHP_CLI_OBJS) | sed 's/\([A-Za-z0-9_]*\)\.lo/\1.o/g'\` | \$(AWK) '{ if (((\$\$2 == \"T\") || (\$\$2 == \"D\") || (\$\$2 == \"B\")) && (substr(\$\$3,1,1) != \".\")) { print \$\$3 } }' | sort -u >> php.sym && \$(LIBTOOL) --mode=link \$(CC) -export-dynamic \$(CFLAGS_CLEAN) \$(EXTRA_CFLAGS) \$(EXTRA_LDFLAGS_PROGRAM) \$(LDFLAGS) -Wl,-brtl -Wl,-bE:php.sym \$(PHP_RPATHS) \$(PHP_GLOBAL_OBJS) \$(PHP_CLI_OBJS) \$(EXTRA_LIBS) \$(ZEND_EXTRA_LIBS) -o \$(SAPI_CLI_PATH)"
      fi
