@@ -4,13 +4,15 @@ class TestPHPHandler < Phuby::TestCase
   FakeServer = Struct.new(:config)
 
   class FakeRequest
-    attr_accessor :request_uri, :query, :path
+    attr_accessor :request_uri, :query, :path, :meta_vars, :cookies
     def initialize uri
       @request_uri = URI.parse "http://localhost#{uri}"
       @query = @request_uri.query ? Hash[
         *@request_uri.query.split('&').map { |param| param.split('=') }.flatten
       ] : {}
       @path = @request_uri.path
+      @meta_vars = {}
+      @cookies = {}
     end
   end
 

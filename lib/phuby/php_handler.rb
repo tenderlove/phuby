@@ -1,4 +1,6 @@
 require 'webrick'
+require 'cgi'
+require 'iconv'
 
 module Phuby
   class PHPHandler < WEBrick::HTTPServlet::FileHandler
@@ -20,8 +22,6 @@ module Phuby
       end
 
       def send_headers response_code
-        #print "#" * 50
-        #puts response_code
       end
     end
 
@@ -30,12 +30,16 @@ module Phuby
     end
 
     def do_POST req, res
+      req.path << "index.php" if req.path =~ /\/$/
+
       return super(req, res) unless req.path =~ /\.php$/
 
       process :POST, req, res
     end
 
     def do_GET req, res
+      req.path << "index.php" if req.path =~ /\/$/
+
       return super(req, res) unless req.path =~ /\.php$/
 
       process :GET, req, res
@@ -45,7 +49,7 @@ module Phuby
     def process verb, req, res
       file = File.join(@root, req.path)
 
-      Dir.chdir(@root) do
+      Dir.chdir(File.dirname(file)) do
         Phuby::Runtime.php do |rt|
           rt.eval("date_default_timezone_set('America/Los_Angeles');")
 
@@ -58,6 +62,16 @@ module Phuby
             rt["_#{verb}"][k] = v
           end if :POST == verb
 
+          # Set CGI server options
+          req.meta_vars.each do |k,v|
+            rt["_SERVER"][k] = v
+          end
+          rt["_SERVER"]['REQUEST_URI'] = req.request_uri.path
+
+          req.cookies.each do |cookie|
+            rt["_COOKIE"][cookie.name] = CGI.unescape(cookie.value)
+          end
+
           events = Events.new req, res
 
           rt.with_events(events) do
@@ -66,6 +80,10 @@ module Phuby
             }
           end
         end
+      end
+      if res['Location']
+        res['Location'] = CGI.unescape res['Location']
+        res.status = 302
       end
     end
   end

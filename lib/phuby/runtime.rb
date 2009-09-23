@@ -14,6 +14,7 @@ module Phuby
     def initialize
       @events       = Events.new
       @mutex        = Mutex.new
+      @proxy_map    = {}
     end
 
     def started?

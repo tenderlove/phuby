@@ -1,6 +1,6 @@
 #include <phuby_conversions.h>
 
-zval * Phuby_value_to_zval(VALUE value)
+zval * Phuby_value_to_zval(VALUE rt, VALUE value)
 {
   zval *php_value;
 
@@ -24,12 +24,19 @@ zval * Phuby_value_to_zval(VALUE value)
     case T_STRING:
       ZVAL_STRINGL(php_value, StringValuePtr(value), RSTRING_LEN(value), 1);
       break;
+    case T_OBJECT:
+      {
+        object_init_ex(php_value, php_ruby_proxy);
+        VALUE map = rb_iv_get(rt, "@proxy_map");
+        rb_hash_aset(map, INT2NUM((int)php_value), value);
+      }
+      break;
   }
 
   return php_value;
 }
 
-VALUE Phuby_zval_to_value(zval * value)
+VALUE Phuby_zval_to_value(VALUE rt, zval * value)
 {
   switch(Z_TYPE_P(value)) {
     case IS_NULL:
@@ -51,8 +58,13 @@ VALUE Phuby_zval_to_value(zval * value)
       return rb_str_new(Z_STRVAL_P(value), Z_STRLEN_P(value));
       break;
     case IS_ARRAY:
-      return Data_Wrap_PhubyArray(value);
+      return Data_Wrap_PhubyArray(rt, value);
       break;
+    case IS_OBJECT:
+      {
+        VALUE map = rb_iv_get(rt, "@proxy_map");
+        return rb_hash_aref(map, INT2NUM((int)value));
+      }
     default:
       rb_raise(rb_eRuntimeError, "Whoa, I don't know how to convert that");
   }

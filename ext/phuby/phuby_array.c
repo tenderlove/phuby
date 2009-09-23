@@ -2,9 +2,11 @@
 
 VALUE cPhubyArray;
 
-VALUE Data_Wrap_PhubyArray(zval * value)
+VALUE Data_Wrap_PhubyArray(VALUE rt, zval * value)
 {
-  return Data_Wrap_Struct(cPhubyArray, 0, 0, value);
+  VALUE arry = Data_Wrap_Struct(cPhubyArray, 0, 0, value);
+  rb_iv_set(arry, "@runtime", rt);
+  return arry;
 }
 
 static VALUE length(VALUE self)
@@ -29,7 +31,7 @@ static VALUE get(VALUE self, VALUE key)
       RSTRING_LEN(key) + 1, // Add one for the NULL byte
       (void **)&value
   )) {
-    return ZVAL2VALUE(*value);
+    return ZVAL2VALUE(rb_iv_get(self, "@runtime"), *value);
   }
 
   return Qnil;
@@ -43,7 +45,7 @@ static VALUE set(VALUE self, VALUE key, VALUE value)
 
   add_assoc_zval(array,
       StringValuePtr(key),
-      VALUE2ZVAL(value)
+      VALUE2ZVAL(rb_iv_get(self, "@runtime"), value)
   );
 
   return self;

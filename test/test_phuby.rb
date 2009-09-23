@@ -12,6 +12,12 @@ class TestPhuby < Phuby::TestCase
     @rt.stop
   end
 
+  def test_objects_move
+    foo = Object.new
+    @rt['hello'] = foo
+    assert_equal foo, @rt['hello']
+  end
+
   def test_eval
     @rt.eval("$hi = 'Hello World';")
   end
@@ -73,6 +79,22 @@ class TestPhuby < Phuby::TestCase
       @rt.eval fh
     }
     assert_equal 'world', @rt['hi']
+  end
+
+  def test_method_call
+    x = Class.new {
+      attr_reader :called
+      def initialize
+        @called = false
+      end
+
+      def hello
+        @called = true
+      end
+    }.new
+    @rt['x'] = x
+    @rt.eval('$x->hello();')
+    assert x.called
   end
 
   #def test_mysql

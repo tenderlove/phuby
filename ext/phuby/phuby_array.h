@@ -4,6 +4,6 @@
 extern VALUE cPhubyArray;
 
 void init_phuby_array();
-VALUE Data_Wrap_PhubyArray(zval * value);
+VALUE Data_Wrap_PhubyArray(VALUE rt, zval * value);
 
 #endif

@@ -2,6 +2,36 @@
 
 VALUE cPhubyRuntime;
 
+PHP_METHOD(RubyProxy, __call)
+{
+  char *function;
+  int function_len;
+  zval *args = NULL;
+
+  if(zend_parse_parameters(ZEND_NUM_ARGS(), "sa|a", &function, &function_len,
+        &args) == FAILURE) {
+    printf("arg################:\n");
+  }
+
+  VALUE rt = rb_funcall(cPhubyRuntime, rb_intern("instance"), 0);
+  VALUE map = rb_iv_get(rt, "@proxy_map");
+  VALUE obj = rb_hash_aref(map, INT2NUM((int)this_ptr));
+
+  rb_funcall(obj, rb_intern(function), 0);
+}
+
+zend_class_entry *php_ruby_proxy;
+
+ZEND_BEGIN_ARG_INFO_EX(arginfo_foo___call, 0, 0, 2)
+  ZEND_ARG_INFO(0, function_name)
+  ZEND_ARG_INFO(0, arguments)
+ZEND_END_ARG_INFO()
+
+function_entry php_ruby_functions[] = {
+  PHP_ME(RubyProxy, __call, arginfo_foo___call, 0)
+  { NULL, NULL, NULL }
+};
+
 static int phuby_ub_write(const char *str, unsigned int strlen)
 {
   VALUE self = rb_funcall(cPhubyRuntime, rb_intern("instance"), 0);
@@ -84,6 +114,10 @@ static VALUE start(VALUE self)
   php_embed_module.flush          = phuby_flush;
 
   php_embed_init(argc, argv);
+  zend_class_entry ce;
+  INIT_CLASS_ENTRY(ce, "RubyProxy", php_ruby_functions);
+
+  php_ruby_proxy = zend_register_internal_class(&ce);
 
   SG(headers_sent) = 0;
   SG(request_info).no_headers = 0;
@@ -172,7 +206,7 @@ static VALUE get(VALUE self, VALUE key)
         StringValuePtr(key),
         RSTRING_LEN(key) + 1,
         (void **)&value) == SUCCESS) {
-    return ZVAL2VALUE(*value);
+    return ZVAL2VALUE(self, *value);
   }
 
   return Qnil;
@@ -180,7 +214,7 @@ static VALUE get(VALUE self, VALUE key)
 
 static VALUE set(VALUE self, VALUE key, VALUE value)
 {
-  zval *php_value = VALUE2ZVAL(value);
+  zval *php_value = VALUE2ZVAL(self, value);
 
   ZEND_SET_SYMBOL(EG(active_symbol_table), StringValuePtr(key), php_value);
 
