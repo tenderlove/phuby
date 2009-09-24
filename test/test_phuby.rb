@@ -81,22 +81,6 @@ class TestPhuby < Phuby::TestCase
     assert_equal 'world', @rt['hi']
   end
 
-  def test_method_call
-    x = Class.new {
-      attr_reader :called
-      def initialize
-        @called = false
-      end
-
-      def hello
-        @called = true
-      end
-    }.new
-    @rt['x'] = x
-    @rt.eval('$x->hello();')
-    assert x.called
-  end
-
   #def test_mysql
   #  @rt['dbhost'] = 'localhost'
   #  @rt['dbuser'] = 'root'
