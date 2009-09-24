@@ -25,13 +25,26 @@ static VALUE get(VALUE self, VALUE key)
 
   Data_Get_Struct(self, zval, array);
 
-  if(SUCCESS == zend_hash_find(
-      Z_ARRVAL_P(array),
-      StringValuePtr(key),
-      RSTRING_LEN(key) + 1, // Add one for the NULL byte
-      (void **)&value
-  )) {
-    return ZVAL2VALUE(rb_iv_get(self, "@runtime"), *value);
+  switch(TYPE(key))
+  {
+    case T_FIXNUM:
+      if(SUCCESS == zend_hash_index_find(
+            Z_ARRVAL_P(array),
+            NUM2INT(key),
+            (void **)&value
+      )) {
+        return ZVAL2VALUE(rb_iv_get(self, "@runtime"), *value);
+      }
+      break;
+    default:
+      if(SUCCESS == zend_hash_find(
+          Z_ARRVAL_P(array),
+          StringValuePtr(key),
+          RSTRING_LEN(key) + 1, // Add one for the NULL byte
+          (void **)&value
+      )) {
+        return ZVAL2VALUE(rb_iv_get(self, "@runtime"), *value);
+      }
   }
 
   return Qnil;
@@ -43,8 +56,10 @@ static VALUE set(VALUE self, VALUE key, VALUE value)
 
   Data_Get_Struct(self, zval, array);
 
+  VALUE s_key = rb_funcall(key, rb_intern("to_s"), 0);
+
   add_assoc_zval(array,
-      StringValuePtr(key),
+      StringValuePtr(s_key),
       VALUE2ZVAL(rb_iv_get(self, "@runtime"), value)
   );
 

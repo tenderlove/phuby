@@ -14,10 +14,12 @@ PHP_METHOD(RubyProxy, __call)
   }
 
   VALUE rt = rb_funcall(cPhubyRuntime, rb_intern("instance"), 0);
-  VALUE map = rb_iv_get(rt, "@proxy_map");
-  VALUE obj = rb_hash_aref(map, INT2NUM((int)this_ptr));
 
-  rb_funcall(obj, rb_intern(function), 0);
+  rb_funcall(rt, rb_intern("call"), 3,
+      INT2NUM((int)this_ptr),
+      rb_str_new(function, function_len),
+      ZVAL2VALUE(rt, args)
+  );
 }
 
 zend_class_entry *php_ruby_proxy;

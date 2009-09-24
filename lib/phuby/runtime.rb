@@ -56,5 +56,14 @@ module Phuby
     end
 
     class NotStartedError < RuntimeError; end
+
+    private
+    def call who, what, with
+      list = []
+      with.each do |obj|
+        list << obj
+      end
+      @proxy_map[who].send(what.to_sym, *list)
+    end
   end
 end

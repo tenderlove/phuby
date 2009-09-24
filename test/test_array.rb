@@ -13,6 +13,51 @@ class TestArray < Phuby::TestCase
     end
   end
 
+  def test_index_numeric_get
+    Phuby::Runtime.php do |rt|
+      rt.eval('$foo = array(1,2,3,4,5);')
+      list = []
+      assert_equal 1, rt['foo'][0]
+    end
+  end
+
+  def test_index_numeric_set
+    Phuby::Runtime.php do |rt|
+      rt.eval('$foo = array(1,2,3,4,5);')
+
+      rt['foo'][0] = "hello"
+
+      rt.eval('$bar = $foo[0];')
+
+      assert_equal 'hello', rt['bar']
+      assert_equal 'hello', rt['foo'][0]
+    end
+  end
+
+  def test_each
+    Phuby::Runtime.php do |rt|
+      rt.eval('$foo = array(1,2,3,4,5);')
+
+      array = rt['foo']
+
+      other = []
+      array.each do |thing|
+        other << thing
+      end
+      assert_equal [1,2,3,4,5], other
+    end
+  end
+
+  def test_to_a
+    Phuby::Runtime.php do |rt|
+      rt.eval('$foo = array(1,2,3,4,5);')
+
+      array = rt['foo']
+
+      assert_equal [1,2,3,4,5], array.to_a
+    end
+  end
+
   def test_get
     Phuby::Runtime.php do |rt|
       rt.eval('$_GET["foo"] = "bar";')
