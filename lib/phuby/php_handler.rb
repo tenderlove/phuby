@@ -64,7 +64,7 @@ module Phuby
 
           # Set CGI server options
           req.meta_vars.each do |k,v|
-            rt["_SERVER"][k] = v
+            rt["_SERVER"][k] = v || ''
           end
           rt["_SERVER"]['REQUEST_URI'] = req.request_uri.path
 
