@@ -13,6 +13,7 @@ zval * Phuby_value_to_zval(VALUE rt, VALUE value)
       break;
 
     case T_TRUE:
+    case T_FALSE:
       ZVAL_BOOL(php_value, value == Qtrue ? 1 : 0);
       break;
 
@@ -31,6 +32,11 @@ zval * Phuby_value_to_zval(VALUE rt, VALUE value)
         rb_hash_aset(map, INT2NUM((int)php_value), value);
       }
       break;
+    case T_NIL:
+      ZVAL_NULL(php_value);
+      break;
+    default:
+      rb_raise(rb_eRuntimeError, "Can't convert ruby object: %d", TYPE(value));
   }
 
   return php_value;
