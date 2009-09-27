@@ -1,6 +1,7 @@
 require 'webrick'
 require 'cgi'
 require 'iconv'
+require 'logger'
 
 module Phuby
   class PHPHandler < WEBrick::HTTPServlet::FileHandler
@@ -13,7 +14,11 @@ module Phuby
 
       def header value, op
         k, v = *value.split(':', 2)
-        @res[k] = v.strip
+        if k.downcase == 'set-cookie'
+          @res.cookies << v.strip
+        else
+          @res[k] = v.strip
+        end
       end
 
       def write string
@@ -53,6 +58,7 @@ module Phuby
         Phuby::Runtime.php do |rt|
           rt.eval("date_default_timezone_set('America/Los_Angeles');")
 
+          rt['logger'] = Logger.new($stdout)
           req.request_uri.query.split('&').each do |pair|
             k, v = pair.split '='
             rt["_GET"][k] = v
