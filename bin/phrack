@@ -2,6 +2,7 @@
 
 require 'phuby'
 require 'rack'
+require 'rack/showexceptions'
 
 class Rack::Phrack < Rack::File
   class Events < Struct.new(:code, :headers, :body)
@@ -14,7 +15,7 @@ class Rack::Phrack < Rack::File
       case k
       when 'Location'
         self.code = 302
-        v = CGI.unescape v
+        v = Rack::Utils.unescape v
       when 'Set-Cookie'
         v = [headers[k], v].compact.join "\n"
       end
@@ -26,40 +27,40 @@ class Rack::Phrack < Rack::File
   end
 
   def call env
-    code, headers, body = 200, {}, ''
-    events = Events.new code, headers, body
-    file = File.join(@root, env['PATH_INFO'])
-    file = File.join(file, "index.php") if File.directory?(file)
+    events = Events.new 200, {}, ''
+    file   = File.join(@root, env['PATH_INFO'])
+    file   = File.join(file, "index.php") if File.directory?(file)
 
     return super unless file =~ /php$/
 
     Dir.chdir(File.dirname(file)) do
       Phuby::Runtime.php do |rt|
+
+        # Set the timezone. *shrug*
         rt.eval("date_default_timezone_set('America/Los_Angeles');")
 
-        params(env['QUERY_STRING']) do |k,v|
-          rt["_GET"][k] = v
-        end
+        # Set the GET parameters in the PHP runtime
+        params(env['QUERY_STRING']) { |k,v| rt["_GET"][k] = v }
 
-        params(env['rack.input'].read) do |k,v|
-          rt["_POST"][k] = v
-        end
+        # Set the POST parameters in the PHP runtime
+        params(env['rack.input'].read) { |k,v| rt["_POST"][k] = v }
 
+        # Set the cookies in the PHP runtime
         env['HTTP_COOKIE'].split('; ').each do |pair|
           k, v = pair.split '='
-          rt["_COOKIE"][k] = CGI.unescape(v)
+          rt["_COOKIE"][k] = Rack::Utils.unescape v
         end
 
+        # Set other misc info.
         env.each { |k,v|
           next if k =~ /^rack/
           rt['_SERVER'][k] = v || ''
         }
         rt["_SERVER"]['REQUEST_URI'] = env['PATH_INFO']
 
+        # Evaluate the PHP file
         rt.with_events(events) do
-          File.open(file, 'rb') { |f|
-            rt.eval f
-          }
+          File.open(file, 'rb') { |f| rt.eval f }
         end
       end
     end
@@ -75,9 +76,6 @@ class Rack::Phrack < Rack::File
 end
 
 if $0 == __FILE__
-  require 'rack'
-  require 'rack/showexceptions'
-
   Rack::Handler::WEBrick.run(
     Rack::ShowExceptions.new(Rack::Phrack.new(Dir.pwd)), :Port => 10101)
 end
