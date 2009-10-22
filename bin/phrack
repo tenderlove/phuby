@@ -1,0 +1,83 @@
+#!/usr/bin/env ruby
+
+require 'phuby'
+require 'rack'
+
+class Rack::Phrack < Rack::File
+  class Events < Struct.new(:code, :headers, :body)
+    def write string
+      body << string
+    end
+
+    def header value, op
+      k, v = value.split(': ', 2)
+      case k
+      when 'Location'
+        self.code = 302
+        v = CGI.unescape v
+      when 'Set-Cookie'
+        v = [headers[k], v].compact.join "\n"
+      end
+      headers[k] = v
+    end
+
+    def send_headers response_code
+    end
+  end
+
+  def call env
+    code, headers, body = 200, {}, ''
+    events = Events.new code, headers, body
+    file = File.join(@root, env['PATH_INFO'])
+    file = File.join(file, "index.php") if File.directory?(file)
+
+    return super unless file =~ /php$/
+
+    Dir.chdir(File.dirname(file)) do
+      Phuby::Runtime.php do |rt|
+        rt.eval("date_default_timezone_set('America/Los_Angeles');")
+
+        params(env['QUERY_STRING']) do |k,v|
+          rt["_GET"][k] = v
+        end
+
+        params(env['rack.input'].read) do |k,v|
+          rt["_POST"][k] = v
+        end
+
+        env['HTTP_COOKIE'].split('; ').each do |pair|
+          k, v = pair.split '='
+          rt["_COOKIE"][k] = CGI.unescape(v)
+        end
+
+        env.each { |k,v|
+          next if k =~ /^rack/
+          rt['_SERVER'][k] = v || ''
+        }
+        rt["_SERVER"]['REQUEST_URI'] = env['PATH_INFO']
+
+        rt.with_events(events) do
+          File.open(file, 'rb') { |f|
+            rt.eval f
+          }
+        end
+      end
+    end
+    events.to_a
+  end
+
+  private
+  def params string
+    string.split('&').each do |pair|
+      yield pair.split('=').map { |x| CGI.unescape(x) }
+    end
+  end
+end
+
+if $0 == __FILE__
+  require 'rack'
+  require 'rack/showexceptions'
+
+  Rack::Handler::WEBrick.run(
+    Rack::ShowExceptions.new(Rack::Phrack.new(Dir.pwd)), :Port => 10101)
+end

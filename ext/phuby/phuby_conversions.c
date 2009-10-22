@@ -26,6 +26,7 @@ zval * Phuby_value_to_zval(VALUE rt, VALUE value)
       ZVAL_STRINGL(php_value, StringValuePtr(value), RSTRING_LEN(value), 1);
       break;
     case T_OBJECT:
+    case T_DATA:
       {
         object_init_ex(php_value, php_ruby_proxy);
         VALUE map = rb_iv_get(rt, "@proxy_map");
@@ -49,7 +50,7 @@ zval * Phuby_value_to_zval(VALUE rt, VALUE value)
       ZVAL_NULL(php_value);
       break;
     default:
-      rb_raise(rb_eRuntimeError, "Can't convert ruby object: %d", TYPE(value));
+      rb_raise(rb_eRuntimeError, "Can't convert ruby object: %s %d", rb_class2name(CLASS_OF(value)), TYPE(value));
   }
 
   return php_value;
