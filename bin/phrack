@@ -44,7 +44,7 @@ class Rack::Phrack < Rack::File
         env.each { |k,v| rt['_SERVER'][k] = v || '' unless k =~ /^rack/ }
         rt["_SERVER"]['REQUEST_URI'] = env['PATH_INFO']
 
-        rt.with_events(events) { rt.eval File.read(file) } # RUN!
+        rt.with_events(events) { open(file) { |f| rt.eval f } } # RUN!
       end
     end
     events.to_a
