@@ -5,30 +5,21 @@ require 'phuby'
 require 'rack'
 require 'rack/showexceptions'
 
-###
+##
 # Rack::Phrack is a Rack handler that will evaulate and serve PHP files.
-#
-# The handler creates a new PHP runtime if it detects that a PHP file has
-# been requested.
+
 class Rack::Phrack < Rack::File
   class Events < Struct.new(:code, :headers, :body)
-    def write string
-      body << string
-    end
+    def write string; body << string; end
+    def send_headers response_code;   end
 
     def header value, op
       k, v = value.split(': ', 2)
-      case k
-      when 'Location'
+      if k == 'Location' then
         self.code = 302
         v = Rack::Utils.unescape v
-      when 'Set-Cookie'
-        v = [headers[k], v].compact.join "\n"
       end
-      headers[k] = v
-    end
-
-    def send_headers response_code
+      headers[k] = [headers[k], v].compact.join "\n"
     end
   end
 
@@ -41,40 +32,25 @@ class Rack::Phrack < Rack::File
 
     Dir.chdir(File.dirname(file)) do
       Phuby::Runtime.php do |rt|
-        # Set the timezone. *shrug*
-        rt.eval "date_default_timezone_set('America/Los_Angeles');"
+        rt.eval "date_default_timezone_set('America/Los_Angeles');" # *shrug*
 
-        # Set the GET parameters in the PHP runtime
-        Rack::Utils.parse_query(env['QUERY_STRING']).each { |k,v|
-          rt["_GET"][k] = v
-        }
+        { Rack::Utils.parse_query(env['QUERY_STRING'])     => "_GET",
+          Rack::Utils.parse_query(env['rack.input'].read)  => "_POST",
+          Rack::Utils.parse_query(env['HTTP_COOKIE'], ';') => "_COOKIE",
+        }.each do |from, to|
+          from.each { |k,v| rt[to][k] = v }
+        end
 
-        # Set the POST parameters in the PHP runtime
-        Rack::Utils.parse_query(env['rack.input'].read).each { |k,v|
-          rt["_POST"][k] = v
-        }
-
-        # Set the cookies in the PHP runtime
-        Rack::Utils.parse_query(env['HTTP_COOKIE'], ';').each { |k,v|
-          rt["_COOKIE"][k] = v
-        }
-
-        # Set other misc info.
         env.each { |k,v| rt['_SERVER'][k] = v || '' unless k =~ /^rack/ }
         rt["_SERVER"]['REQUEST_URI'] = env['PATH_INFO']
 
-        # Evaluate the PHP file
-        rt.with_events(events) do
-          File.open(file, 'rb') { |f| rt.eval f }
-        end
+        rt.with_events(events) { rt.eval File.read(file) } # RUN!
       end
     end
     events.to_a
   end
 end
 
-if $0 == __FILE__
-  Rack::Handler::WEBrick.run(
+Rack::Handler::WEBrick.run(
     Rack::ShowExceptions.new(Rack::Phrack.new(ARGV[0] || Dir.pwd)),
-    :Port => 10101)
-end
+    :Port => 10101) if $0 == __FILE__
