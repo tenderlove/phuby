@@ -3,7 +3,6 @@
 require 'rubygems'
 require 'phuby'
 require 'rack'
-require 'rack/showexceptions'
 
 ##
 # Rack::Phrack is a Rack handler that will evaulate and serve PHP files.
@@ -15,11 +14,8 @@ class Rack::Phrack < Rack::File
 
     def header value, op
       k, v = value.split(': ', 2)
-      if k == 'Location' then
-        self.code = 302
-        v = Rack::Utils.unescape v
-      end
-      headers[k] = [headers[k], v].compact.join "\n"
+      self.code = 302 if k == 'Location'
+      headers[k] = [headers[k], Rack::Utils.unescape(v)].compact.join "\n"
     end
   end
 
@@ -51,6 +47,5 @@ class Rack::Phrack < Rack::File
   end
 end
 
-Rack::Handler::WEBrick.run(
-    Rack::ShowExceptions.new(Rack::Phrack.new(ARGV[0] || Dir.pwd)),
-    :Port => 10101) if $0 == __FILE__
+Rack::Handler::WEBrick.run(Rack::Phrack.new(ARGV[0] || Dir.pwd),
+                           :Port => 10101) if $0 == __FILE__
