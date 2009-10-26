@@ -1,9 +1,9 @@
 #!/usr/bin/env ruby
 
+require 'rubygems'
 require 'phuby'
 require 'rack'
 require 'rack/showexceptions'
-require 'logger'
 
 ###
 # Rack::Phrack is a Rack handler that will evaulate and serve PHP files.
@@ -34,36 +34,33 @@ class Rack::Phrack < Rack::File
 
   def call env
     events = Events.new 200, {}, ''
-    file   = File.join(@root, env['PATH_INFO'])
-    file   = File.join(file, "index.php") if File.directory?(file)
+    file   = File.join @root, env['PATH_INFO']
+    file   = File.join file, "index.php" if File.directory?(file)
 
     return super unless file =~ /php$/
 
     Dir.chdir(File.dirname(file)) do
       Phuby::Runtime.php do |rt|
-
-        rt['_LOGGER'] = Logger.new($stderr)
-
         # Set the timezone. *shrug*
-        rt.eval("date_default_timezone_set('America/Los_Angeles');")
+        rt.eval "date_default_timezone_set('America/Los_Angeles');"
 
         # Set the GET parameters in the PHP runtime
-        params(env['QUERY_STRING']) { |k,v| rt["_GET"][k] = v }
+        Rack::Utils.parse_query(env['QUERY_STRING']).each { |k,v|
+          rt["_GET"][k] = v
+        }
 
         # Set the POST parameters in the PHP runtime
-        params(env['rack.input'].read) { |k,v| rt["_POST"][k] = v }
+        Rack::Utils.parse_query(env['rack.input'].read).each { |k,v|
+          rt["_POST"][k] = v
+        }
 
         # Set the cookies in the PHP runtime
-        env['HTTP_COOKIE'].split('; ').each do |pair|
-          k, v = pair.split '='
-          rt["_COOKIE"][k] = Rack::Utils.unescape v
-        end
+        Rack::Utils.parse_query(env['HTTP_COOKIE'], ';').each { |k,v|
+          rt["_COOKIE"][k] = v
+        }
 
         # Set other misc info.
-        env.each { |k,v|
-          next if k =~ /^rack/
-          rt['_SERVER'][k] = v || ''
-        }
+        env.each { |k,v| rt['_SERVER'][k] = v || '' unless k =~ /^rack/ }
         rt["_SERVER"]['REQUEST_URI'] = env['PATH_INFO']
 
         # Evaluate the PHP file
@@ -73,13 +70,6 @@ class Rack::Phrack < Rack::File
       end
     end
     events.to_a
-  end
-
-  private
-  def params string
-    string.split('&').each do |pair|
-      yield pair.split('=').map { |x| Rack::Utils.unescape(x) }
-    end
   end
 end
 
