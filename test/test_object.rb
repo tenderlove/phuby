@@ -17,6 +17,12 @@ class TestObject < Phuby::TestCase
     end
   end
 
+  def test_stringio
+    Phuby::Runtime.php do |rt|
+      rt['x'] = StringIO.new('')
+    end
+  end
+
   def test_method_call
     x = FunObject.new
     Phuby::Runtime.php do |rt|

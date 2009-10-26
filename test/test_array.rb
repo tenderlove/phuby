@@ -1,6 +1,15 @@
 require 'helper'
 
 class TestArray < Phuby::TestCase
+  def test_move_to_runtime
+    Phuby::Runtime.php do |rt|
+      rt['foo'] = [1,2,3]
+      assert_equal 1, rt['foo'][0]
+      assert_equal 2, rt['foo'][1]
+      assert_equal 3, rt['foo'][2]
+    end
+  end
+
   def test_array_length
     Phuby::Runtime.php do |rt|
       rt.eval('$get_length = count($_GET);')

@@ -1,4 +1,4 @@
-#include <phuby_conversions.h>
+#include <phuby.h>
 
 zval * Phuby_value_to_zval(VALUE rt, VALUE value)
 {
@@ -26,8 +26,22 @@ zval * Phuby_value_to_zval(VALUE rt, VALUE value)
       ZVAL_STRINGL(php_value, StringValuePtr(value), RSTRING_LEN(value), 1);
       break;
     case T_OBJECT:
+    case T_DATA:
       {
         object_init_ex(php_value, php_ruby_proxy);
+        VALUE map = rb_iv_get(rt, "@proxy_map");
+        rb_hash_aset(map, INT2NUM((int)php_value), value);
+      }
+      break;
+    case T_ARRAY:
+      {
+        array_init(php_value);
+        int i;
+        for(i = 0; i < RARRAY_LEN(value); i++) {
+          VALUE key = rb_funcall(INT2NUM(i), rb_intern("to_s"), 0);
+          VALUE thing = RARRAY_PTR(value)[i];
+          add_assoc_zval(php_value, StringValuePtr(key), Phuby_value_to_zval(rt, thing));
+        }
         VALUE map = rb_iv_get(rt, "@proxy_map");
         rb_hash_aset(map, INT2NUM((int)php_value), value);
       }
@@ -36,7 +50,7 @@ zval * Phuby_value_to_zval(VALUE rt, VALUE value)
       ZVAL_NULL(php_value);
       break;
     default:
-      rb_raise(rb_eRuntimeError, "Can't convert ruby object: %d", TYPE(value));
+      rb_raise(rb_eRuntimeError, "Can't convert ruby object: %s %d", rb_class2name(CLASS_OF(value)), TYPE(value));
   }
 
   return php_value;
