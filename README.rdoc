@@ -30,21 +30,29 @@ Phuby wraps PHP in a loving embrace.  Exposes a PHP runtime in ruby
 
 The following instructions apply to OS X (probably not needed on linux):
 
+DO NOT change the prefix... No, I don't know why yet.
+
+=== Install iconv with macports
+
+  $ sudo port install iconv
+
 === Install MySQL with macports
 
   $ sudo port install mysql5 mysql5-server
 
 Set some symbolic links:
 
-  $ sudo ln -s /opt/local/include/mysql5/mysql /opt/local/include/mysql
-  $ sudo ln -s /opt/local/lib/mysql5/mysql/libmysqlclient.15.dylib \
-      /opt/local/lib/libmysqlclient.dylib
+  $ cd /opt/local
+  $ sudo ln -s mysql5/mysql include/mysql
+  $ sudo ln -s mysql5/mysql/libmysqlclient.15.dylib lib/libmysqlclient.dylib
 
 === Patch and configure php
 
 If you're on OS X, apply php.patch to the downloaded php.  Then configure
 php with the proper flags.  These paths are for OS X, but you should be able
 to adjust them for linux:
+
+  $ patch -p0 < ../path/to/php.patch
 
   $ ./configure --enable-debug \
       --enable-embed \
@@ -66,7 +74,7 @@ Then, either install the gem, or rake test
 
 (The MIT License)
 
-Copyright (c) 2009 FIX
+Copyright (c) Aaron Patterson and Ryan Davis of Seattle.rb
 
 Permission is hereby granted, free of charge, to any person obtaining
 a copy of this software and associated documentation files (the
