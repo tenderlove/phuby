@@ -3,7 +3,13 @@
 require 'phuby'
 require 'rack'
 require 'rack/showexceptions'
+require 'logger'
 
+###
+# Rack::Phrack is a Rack handler that will evaulate and serve PHP files.
+#
+# The handler creates a new PHP runtime if it detects that a PHP file has
+# been requested.
 class Rack::Phrack < Rack::File
   class Events < Struct.new(:code, :headers, :body)
     def write string
@@ -35,6 +41,8 @@ class Rack::Phrack < Rack::File
 
     Dir.chdir(File.dirname(file)) do
       Phuby::Runtime.php do |rt|
+
+        rt['_LOGGER'] = Logger.new($stderr)
 
         # Set the timezone. *shrug*
         rt.eval("date_default_timezone_set('America/Los_Angeles');")
@@ -70,12 +78,13 @@ class Rack::Phrack < Rack::File
   private
   def params string
     string.split('&').each do |pair|
-      yield pair.split('=').map { |x| CGI.unescape(x) }
+      yield pair.split('=').map { |x| Rack::Utils.unescape(x) }
     end
   end
 end
 
 if $0 == __FILE__
   Rack::Handler::WEBrick.run(
-    Rack::ShowExceptions.new(Rack::Phrack.new(Dir.pwd)), :Port => 10101)
+    Rack::ShowExceptions.new(Rack::Phrack.new(ARGV[0] || Dir.pwd)),
+    :Port => 10101)
 end
