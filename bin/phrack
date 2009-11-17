@@ -47,5 +47,4 @@ class Rack::Phrack < Rack::File
   end
 end
 
-Rack::Handler::WEBrick.run(Rack::Phrack.new(ARGV[0] || Dir.pwd),
-                           :Port => 10101) if $0 == __FILE__
+Rack::Handler::WEBrick.run(Rack::Phrack.new(ARGV[0] || Dir.pwd), :Port => 10101)
