@@ -15,11 +15,17 @@ PHP_METHOD(RubyProxy, __call)
 
   VALUE rt = rb_funcall(cPhubyRuntime, rb_intern("instance"), 0);
 
-  rb_funcall(rt, rb_intern("call"), 3,
+  VALUE ret = rb_funcall(rt, rb_intern("call"), 3,
       INT2NUM((int)this_ptr),
       rb_str_new(function, function_len),
       ZVAL2VALUE(rt, args)
   );
+
+  if(ret != Qnil) {
+    zval * rv  = Phuby_value_to_zval(rt, ret);
+    RETURN_ZVAL(rv, 1, 1);
+  }
+  RETURN_NULL();
 }
 
 zend_class_entry *php_ruby_proxy;

@@ -15,6 +15,10 @@ class TestObject < Phuby::TestCase
     def value x
       @values << x
     end
+
+    def saying
+      "hello"
+    end
   end
 
   def test_stringio
@@ -40,5 +44,14 @@ class TestObject < Phuby::TestCase
       rt.eval('$x->value("bar");')
     end
     assert_equal %w{ foo bar }, x.values
+  end
+
+  def test_return_value
+    x = FunObject.new
+    Phuby::Runtime.php do |rt|
+      rt['x'] = x
+      rt.eval('$y = $x->saying();')
+      assert_equal 'hello', rt['y']
+    end
   end
 end

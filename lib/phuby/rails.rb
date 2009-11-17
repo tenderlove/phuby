@@ -12,12 +12,28 @@ class PHPHandler < ActionView::TemplateHandler
     end
   end
 
+  class ControllerProxy
+    def initialize controller
+      @controller = controller
+    end
+
+    def method_missing name
+      @controller.instance_variable_get :"@#{name}"
+    end
+  end
+
+  def initialize view
+    @controller = view.controller
+    @proxy      = ControllerProxy.new @controller
+  end
+
   def render template, *args
     filename = File.join template.load_path, template.template_path
     events   = Events.new(200, {}, '')
     Dir.chdir(File.dirname(filename)) do
       Phuby::Runtime.php do |rt|
         rt.eval "date_default_timezone_set('America/Los_Angeles');"
+        rt['at'] = @proxy
         rt.with_events(events) do
           open(filename) { |f| rt.eval f }
         end
