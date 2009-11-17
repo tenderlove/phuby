@@ -7,7 +7,8 @@ class PHPHandler < ActionView::TemplateHandler
 
     def header value, op
       k, v = value.split(': ', 2)
-      self.code = 302 if k == 'Location'      headers[k] = [headers[k], Rack::Utils.unescape(v)].compact.join "\n"
+      self.code = 302 if k == 'Location'
+      headers[k] = [headers[k], Rack::Utils.unescape(v)].compact.join "\n"
     end
   end
 
