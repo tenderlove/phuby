@@ -6,9 +6,7 @@ Rakefile
 bin/phrack
 bin/phuby
 bin/phuby_server
-ext/phuby/Makefile
 ext/phuby/extconf.rb
-ext/phuby/mkmf.log
 ext/phuby/phuby.c
 ext/phuby/phuby.h
 ext/phuby/phuby_array.c
