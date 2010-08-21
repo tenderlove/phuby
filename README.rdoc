@@ -34,7 +34,7 @@ DO NOT change the prefix... No, I don't know why yet.
 
 === Install iconv with macports
 
-  $ sudo port install iconv
+  $ sudo port install libiconv
 
 === Install MySQL with macports
 
@@ -43,8 +43,9 @@ DO NOT change the prefix... No, I don't know why yet.
 Set some symbolic links:
 
   $ cd /opt/local
-  $ sudo ln -s mysql5/mysql include/mysql
-  $ sudo ln -s mysql5/mysql/libmysqlclient.15.dylib lib/libmysqlclient.dylib
+  $ sudo ln -s /opt/local/include/mysql5/mysql /opt/local/include/mysql
+  $ sudo ln -s /opt/local/lib/mysql5/mysql/libmysqlclient.15.dylib \
+      /opt/local/lib/libmysqlclient.dylib
 
 === Patch and configure php
 
