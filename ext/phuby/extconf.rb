@@ -4,7 +4,7 @@ ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
 
 require 'mkmf'
 
-config = Dir["/{usr,opt}/local/bin/php-config"]
+config = Dir["/{usr,opt}/local/bin/php-config"].first
 prefix = `#{config} --prefix`.chomp
 
 php_inc, php_lib = dir_config("php5", "#{prefix}/include", "#{prefix}/lib")
