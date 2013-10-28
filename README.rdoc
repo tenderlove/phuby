@@ -12,13 +12,13 @@ Phuby wraps PHP in a loving embrace.  Exposes a PHP runtime in ruby
 
 == SYNOPSIS:
 
-  rt = Phuby::Runtime.new
-  rt.start
+  php = Phuby::Runtime.new
+  php.start
 
-  rt.eval('$hello = "world"')
-  assert_equal "world", rt['hello']
+  php.eval('$hello = "world"')
+  assert_equal "world", php['hello']
 
-  rt.stop
+  php.stop
 
 == REQUIREMENTS:
 
