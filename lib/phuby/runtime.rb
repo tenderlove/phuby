@@ -38,9 +38,9 @@ module Phuby
       end
     end
 
-    def php &block
+    def php
       start
-      block.call(self)
+      yield self
     ensure
       stop
     end
