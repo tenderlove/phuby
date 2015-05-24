@@ -7,9 +7,9 @@ require "rake/extensiontask"
 
 HOE = Hoe.spec 'phuby' do
   developer('Aaron Patterson', 'aaronp@rubyforge.org')
-  self.readme_file   = 'README.rdoc'
+  self.readme_file   = 'README.markdown'
   self.history_file  = 'CHANGELOG.rdoc'
-  self.extra_rdoc_files  = FileList['*.rdoc']
+  self.extra_rdoc_files  = FileList['*.markdown']
 
   self.spec_extras = { :extensions => ["ext/phuby/extconf.rb"] }
 end

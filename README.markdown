@@ -1,30 +1,32 @@
-= phuby
+# phuby
 
 * http://github.com/tenderlove/phuby
 
-== DESCRIPTION:
+## DESCRIPTION:
 
 Phuby wraps PHP in a loving embrace.  Exposes a PHP runtime in ruby
 
-== FEATURES/PROBLEMS:
+## FEATURES/PROBLEMS:
 
 * many
 
-== SYNOPSIS:
+## SYNOPSIS:
 
-  php = Phuby::Runtime.new
-  php.start
+```ruby
+php = Phuby::Runtime.new
+php.start
 
-  php.eval('$hello = "world"')
-  assert_equal "world", php['hello']
+php.eval('$hello = "world"')
+assert_equal "world", php['hello']
 
-  php.stop
+php.stop
+```
 
-== REQUIREMENTS:
+## REQUIREMENTS:
 
 * php
 
-== BUILD INSTRUCTIONS:
+## BUILD INSTRUCTIONS:
 
 * Download php-5.3.0
 
@@ -32,46 +34,54 @@ The following instructions apply to OS X (probably not needed on linux):
 
 DO NOT change the prefix... No, I don't know why yet.
 
-=== Install iconv with macports
+### Install iconv with macports
 
-  $ sudo port install libiconv
+```
+$ sudo port install libiconv
+```
 
-=== Install MySQL with macports
+### Install MySQL with macports
 
-  $ sudo port install mysql5 mysql5-server
+```
+$ sudo port install mysql5 mysql5-server
+```
 
 Set some symbolic links:
 
-  $ cd /opt/local
-  $ sudo ln -s /opt/local/include/mysql5/mysql /opt/local/include/mysql
-  $ sudo ln -s /opt/local/lib/mysql5/mysql/libmysqlclient.15.dylib \
-      /opt/local/lib/libmysqlclient.dylib
+```
+$ cd /opt/local
+$ sudo ln -s /opt/local/include/mysql5/mysql /opt/local/include/mysql
+$ sudo ln -s /opt/local/lib/mysql5/mysql/libmysqlclient.15.dylib \
+    /opt/local/lib/libmysqlclient.dylib
+```
 
-=== Patch and configure php
+### Patch and configure php
 
 If you're on OS X, apply php.patch to the downloaded php.  Then configure
 php with the proper flags.  These paths are for OS X, but you should be able
 to adjust them for linux:
 
-  $ patch -p0 < ../path/to/php.patch
+```
+$ patch -p0 < ../path/to/php.patch
 
-  $ ./configure --enable-debug \
-      --enable-embed \
-      --disable-cli  \
-      --with-mysql=/opt/local \
-      --with-mysqli=/opt/local/lib/mysql5/bin/mysql_config \
-      --with-mysql-sock=/opt/local/var/run/mysql5/mysqld.sock \
-      --prefix=/usr/local
+$ ./configure --enable-debug \
+    --enable-embed \
+    --disable-cli  \
+    --with-mysql=/opt/local \
+    --with-mysqli=/opt/local/lib/mysql5/bin/mysql_config \
+    --with-mysql-sock=/opt/local/var/run/mysql5/mysqld.sock \
+    --prefix=/usr/local
 
-  $ make && sudo make install
+$ make && sudo make install
+```
 
 Then, either install the gem, or rake test
 
-== INSTALL:
+## INSTALL:
 
 * No.
 
-== LICENSE:
+## LICENSE:
 
 (The MIT License)
 
