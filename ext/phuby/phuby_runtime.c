@@ -35,7 +35,7 @@ ZEND_BEGIN_ARG_INFO_EX(arginfo_foo___call, 0, 0, 2)
   ZEND_ARG_INFO(0, arguments)
 ZEND_END_ARG_INFO()
 
-function_entry php_ruby_functions[] = {
+zend_function_entry php_ruby_functions[] = {
   PHP_ME(RubyProxy, __call, arginfo_foo___call, 0)
   { NULL, NULL, NULL }
 };
@@ -130,7 +130,7 @@ static VALUE start(VALUE self)
   SG(headers_sent) = 0;
   SG(request_info).no_headers = 0;
 
-  return Qnil;
+  return rb_funcall(cPhubyRuntime, rb_intern("instance"), 0);
 }
 
 static VALUE stop(VALUE self)
@@ -193,17 +193,17 @@ static VALUE native_eval_io(VALUE self, VALUE io, VALUE filename)
 static VALUE native_eval(VALUE self, VALUE string, VALUE filename)
 {
 
-  zval return_value;
+  zval * return_value = malloc(sizeof(zval));
 
   zend_first_try {
     zend_eval_string(
       StringValuePtr(string),
-      NULL,
+      return_value,
       StringValuePtr(filename)
     );
   } zend_end_try();
 
-  return Qnil;
+  return ZVAL2VALUE(self, return_value);
 }
 
 static VALUE get(VALUE self, VALUE key)
