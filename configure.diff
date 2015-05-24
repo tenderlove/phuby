@@ -1,0 +1,13 @@
+diff --git a/configure b/configure
+index abd0e47..c0cef70 100755
+--- a/configure
++++ b/configure
+@@ -110136,7 +110136,7 @@ if test -z "$aix_libpath"; then aix_libpath="/usr/lib:/lib"; fi
+     if test "$GCC" = yes ; then
+     	output_verbose_link_cmd='echo'
+         archive_cmds="\$CC -dynamiclib \$allow_undefined_flag -o \$lib \$libobjs \$deplibs \$compiler_flags -install_name \$rpath/\$soname \$verstring $_lt_dar_single_mod${_lt_dsymutil}"
+-        module_cmds="\$CC \$allow_undefined_flag -o \$lib -bundle \$libobjs \$deplibs \$compiler_flags${_lt_dsymutil}"
++        module_cmds="\$CC \$allow_undefined_flag -o \$lib -dynamiclib \$libobjs \$deplibs \$compiler_flags${_lt_dsymutil}"
+         archive_expsym_cmds="sed 's,^,_,' < \$export_symbols > \$output_objdir/\${libname}-symbols.expsym~\$CC -dynamiclib \$allow_undefined_flag -o \$lib \$libobjs \$deplibs \$compiler_flags -install_name \$rpath/\$soname \$verstring ${_lt_dar_single_mod}${_lt_dar_export_syms}${_lt_dsymutil}"
+         module_expsym_cmds="sed -e 's,^,_,' < \$export_symbols > \$output_objdir/\${libname}-symbols.expsym~\$CC \$allow_undefined_flag -o \$lib -bundle \$libobjs \$deplibs \$compiler_flags${_lt_dar_export_syms}${_lt_dsymutil}"
+     else
