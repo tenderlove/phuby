@@ -40,13 +40,13 @@ function_entry php_ruby_functions[] = {
   { NULL, NULL, NULL }
 };
 
-static int phuby_ub_write(const char *str, unsigned int strlen)
+static int phuby_ub_write(const char *str, unsigned int _strlen)
 {
   VALUE self = rb_funcall(cPhubyRuntime, rb_intern("instance"), 0);
   VALUE handler = rb_iv_get(self, "@events");
 
-  rb_funcall(handler, rb_intern("write"), 1, rb_str_new(str, strlen));
-  return strlen;
+  rb_funcall(handler, rb_intern("write"), 1, rb_str_new(str, _strlen));
+  return _strlen;
 }
 
 static int phuby_header_handler(

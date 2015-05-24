@@ -1,6 +1,5 @@
 require 'webrick'
 require 'cgi'
-require 'iconv'
 require 'logger'
 
 module Phuby

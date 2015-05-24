@@ -51,6 +51,6 @@ class TestPHPHandler < Phuby::TestCase
 
     handler = Phuby::PHPHandler.new @server
     handler.do_GET req, res
-    assert_not_nil res['Content-type']
+    refute_nil res['Content-type']
   end
 end
