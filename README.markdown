@@ -28,58 +28,26 @@ php.stop
 
 ## BUILD INSTRUCTIONS:
 
-* Download php-5.3.0
+I've only tested this gem on OS X.  It should work on other operating systems,
+but you'll need to install php with the `--enable-embed` flag yourself.
 
-The following instructions apply to OS X (probably not needed on linux):
+On OS X:
 
-DO NOT change the prefix... No, I don't know why yet.
-
-### Install iconv with macports
-
-```
-$ sudo port install libiconv
-```
-
-### Install MySQL with macports
+**Make sure you have mysql installed before installing this gem**
 
 ```
-$ sudo port install mysql5 mysql5-server
+$ gem install phuby
 ```
 
-Set some symbolic links:
-
-```
-$ cd /opt/local
-$ sudo ln -s /opt/local/include/mysql5/mysql /opt/local/include/mysql
-$ sudo ln -s /opt/local/lib/mysql5/mysql/libmysqlclient.15.dylib \
-    /opt/local/lib/libmysqlclient.dylib
-```
-
-### Patch and configure php
-
-If you're on OS X, apply php.patch to the downloaded php.  Then configure
-php with the proper flags.  These paths are for OS X, but you should be able
-to adjust them for linux:
-
-```
-$ patch -p0 < ../path/to/php.patch
-
-$ ./configure --enable-debug \
-    --enable-embed \
-    --disable-cli  \
-    --with-mysql=/opt/local \
-    --with-mysqli=/opt/local/lib/mysql5/bin/mysql_config \
-    --with-mysql-sock=/opt/local/var/run/mysql5/mysqld.sock \
-    --prefix=/usr/local
-
-$ make && sudo make install
-```
-
-Then, either install the gem, or rake test
+On other operating systems, install php first, then do the gem install.
 
 ## INSTALL:
 
 * No.
+
+## I can't even!
+
+* Don't
 
 ## LICENSE:
 

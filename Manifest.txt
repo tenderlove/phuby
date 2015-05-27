@@ -1,7 +1,7 @@
 .autotest
 CHANGELOG.rdoc
 Manifest.txt
-README.rdoc
+README.markdown
 Rakefile
 bin/phrack
 bin/phuby
