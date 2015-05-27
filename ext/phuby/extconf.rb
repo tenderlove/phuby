@@ -3,6 +3,7 @@ ENV['RC_ARCHS'] = '' if RUBY_PLATFORM =~ /darwin/
 # :stopdoc:
 
 require 'mkmf'
+require 'shellwords'
 
 location = File.expand_path(File.dirname(__FILE__))
 
@@ -31,7 +32,7 @@ unless find_library("php5", "php_embed_init", php_lib)
     Dir.chdir "php-5.6.9" do
       system "curl https://raw.githubusercontent.com/tenderlove/phuby/ed41daece6a9191a0240dae9c9b610bb06d61177/configure.diff | patch"
       cmd = './configure --enable-debug --enable-embed --disable-cli --with-mysql=/usr/local --with-mysqli=/usr/local/bin/mysql_config --with-mysql-sock=/tmp/mysql.sock '
-      cmd << " --prefix=#{location}"
+      cmd << " --prefix=#{Shellwords.escape(location)}"
       system cmd
       system "make"
       system "find . -path '*.libs*' -name *.o -execdir sh -c 'cp * ../' \\;"
