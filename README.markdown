@@ -39,6 +39,8 @@ No, seriously, make sure that mysql is installed.  It's hardcoded in the
 extconf.rb, and I don't feel like fixing it.  If you would like to submit a patch
 that would be great, but I don't want to deal.  Just install mysql.
 
+Run this command (IT WILL TAKE A LONG TIME BECAUSE IT LITERALLY BUILDS PHP):
+
 ```
 $ gem install phuby
 ```
