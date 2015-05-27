@@ -33,7 +33,11 @@ but you'll need to install php with the `--enable-embed` flag yourself.
 
 On OS X:
 
-**Make sure you have mysql installed before installing this gem**
+**Make sure you have mysql installed with homebrew before installing this gem**
+
+No, seriously, make sure that mysql is installed.  It's hardcoded in the
+extconf.rb, and I don't feel like fixing it.  If you would like to submit a patch
+that would be great, but I don't want to deal.  Just install mysql.
 
 ```
 $ gem install phuby
