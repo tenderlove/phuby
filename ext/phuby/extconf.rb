@@ -8,9 +8,13 @@ require 'shellwords'
 location = File.expand_path(File.dirname(__FILE__))
 
 config = Dir["/{usr,opt}/local/bin/php-config"].first
-prefix = `#{config} --prefix`.chomp
+prefix = `#{config} --prefix`.chomp if config
 
-php_inc, php_lib = dir_config("php5", "#{prefix}/include", "#{prefix}/lib")
+if prefix
+  php_inc, php_lib = dir_config("php5", "#{prefix}/include", "#{prefix}/lib")
+else
+  php_inc, php_lib = dir_config("php5")
+end
 
 $INCFLAGS = "-I#{File.join(php_inc, "php").quote} #{$INCFLAGS}"
 
