@@ -1,6 +1,6 @@
 require 'phuby'
 
-class PHPHandler < ActionView::TemplateHandler
+class PHPHandler
   class Events < Struct.new(:code, :headers, :body)
     def write string; body << string; end
     def send_headers response_code;   end
@@ -22,25 +22,55 @@ class PHPHandler < ActionView::TemplateHandler
     end
   end
 
-  def initialize view
-    @controller = view.controller
+  attr_reader :filename
+
+  def initialize filename, controller
+    @controller = controller
     @proxy      = ControllerProxy.new @controller
+    @filename   = filename
   end
 
-  def render template, *args
-    filename = File.join template.load_path, template.template_path
+  def run
     events   = Events.new(200, {}, '')
-    Dir.chdir(File.dirname(filename)) do
-      Phuby::Runtime.php do |rt|
-        rt.eval "date_default_timezone_set('America/Los_Angeles');"
-        rt['at'] = @proxy
-        rt.with_events(events) do
-          open(filename) { |f| rt.eval f }
-        end
+    rd, wr = IO.pipe
+
+    buf = ''
+    th = Thread.new do
+      Thread.current.abort_on_exception = true
+
+      while !rd.eof?
+        buf << rd.read
       end
     end
 
-    events.body
+    # PHP messes up openssl, so lets fork to protect the main Ruby process.
+    pid = fork {
+      rd.close
+
+      Dir.chdir(File.dirname(filename)) do
+        Phuby::Runtime.php do |rt|
+          rt.eval "date_default_timezone_set('America/Los_Angeles');"
+          rt['at'] = @proxy
+          rt.with_events(events) do
+            open(filename) { |f| rt.eval f }
+          end
+        end
+      end
+
+      str = events.body
+      str.force_encoding 'utf-8'
+      str.scrub!
+      wr.write str
+      wr.close
+    }
+    wr.close
+    Process.waitpid pid
+    th.join
+    buf
+  end
+
+  def self.call template
+    "PHPHandler.new(#{template.identifier.inspect}, controller).run"
   end
 end
 
